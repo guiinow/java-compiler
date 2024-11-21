@@ -3,6 +3,10 @@
  * Breno Rotte
  */
 
+ import java_cup.runtime.Scanner;
+ import java_cup.runtime.Symbol;
+
+
 %%
 
 %class Lang_Lexer
