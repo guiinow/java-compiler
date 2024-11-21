@@ -1,8 +1,7 @@
 /* lang lexer specification
- * eira
+ * Guilherme Ferreira
  * Breno Rotte
  */
-import java_cup.runtime.*;
 
 %%
 
@@ -42,21 +41,27 @@ import java_cup.runtime.*;
 <YYINITIAL> "print" { return new Symbol(sym.PRINT); }
 <YYINITIAL> "return" { return new Symbol(sym.RETURN); }
 
-/* operators */
+/* operators - Order matters here */
 
+<YYINITIAL> "==" { return new Symbol(sym.EQUAL); }
+<YYINITIAL> "!=" { return new Symbol(sym.DIFFERENT); }
+<YYINITIAL> "<=" { return new Symbol(sym.LESS_EQUAL); }
+<YYINITIAL> ">=" { return new Symbol(sym.GREATER_EQUAL); }
+<YYINITIAL> "&&" { return new Symbol(sym.AND); }
+<YYINITIAL> "::" { return new Symbol(sym.DOUBLE_COLON); }
+
+<YYINITIAL> "=" { return new Symbol(sym.ASSIGN); }
+<YYINITIAL> "<" { return new Symbol(sym.LESS); }
+<YYINITIAL> ">" { return new Symbol(sym.GREATER); }
 <YYINITIAL> "+" { return new Symbol(sym.PLUS); }
 <YYINITIAL> "-" { return new Symbol(sym.MINUS); }
 <YYINITIAL> "*" { return new Symbol(sym.TIMES); }
 <YYINITIAL> "/" { return new Symbol(sym.DIVIDE); }
-<YYINITIAL> "=" { return new Symbol(sym.ASSIGN); }
-<YYINITIAL> "==" { return new Symbol(sym.EQUAL); }
-<YYINITIAL> "!=" { return new Symbol(sym.DIFFERENT); }
-<YYINITIAL> "<" { return new Symbol(sym.LESS); }
-<YYINITIAL> "<=" { return new Symbol(sym.LESS_EQUAL); }
-<YYINITIAL> ">" { return new Symbol(sym.GREATER); }
-<YYINITIAL> ">=" { return new Symbol(sym.GREATER_EQUAL); }
-<YYINITIAL> "&&" { return new Symbol(sym.AND); }
+<YYINITIAL> "%" { return new Symbol(sym.MOD); }
 <YYINITIAL> "!" { return new Symbol(sym.NOT); }
+
+/* punctuation symbols */
+
 <YYINITIAL> "(" { return new Symbol(sym.OPEN_PARENTHESIS); }
 <YYINITIAL> ")" { return new Symbol(sym.CLOSE_PARENTHESIS); }
 <YYINITIAL> "{" { return new Symbol(sym.OPEN_BRACES); }
@@ -65,6 +70,16 @@ import java_cup.runtime.*;
 <YYINITIAL> "," { return new Symbol(sym.COMMA); }
 <YYINITIAL> ":" { return new Symbol(sym.COLON); }
 <YYINITIAL> "." { return new Symbol(sym.DOT); }
-<YYINITIAL> "::" { return new Symbol(sym.DOUBLE_COLON); }
-<YYINITIAL> "%" { return new Symbol(sym.MOD); }
 
+/* Identifiers */
+
+<YYINITIAL> [a-zA-Z_][a-zA-Z0-9_]* { return new Symbol(sym.ID, yytext()); }
+
+/* Integer and Float literals */
+
+<YYINITIAL> [0-9]+ { return new Symbol(sym.INT_LITERAL, Integer.parseInt(yytext())); }
+<YYINITIAL> [0-9]+"."[0-9]+ { return new Symbol(sym.FLOAT_LITERAL, Float.parseFloat(yytext())); }
+
+/* Whitespace (ignored) */
+
+<YYINITIAL> [ \t\n\r]+ { /* ignore white spaces */ }
