@@ -1,34 +1,25 @@
-# Define variables
-JFLEX = ./jflex-1.9.1/lib/jflex-full-1.9.1.jar
-CUP = ./java-cup-bin-11b-20160615/java-cup-11b.jar
-FLEX_SRC = src/lexical-analyzer.flex
-LEXER_SRC = src/Lang_Lexer.java
-CUP_SRC = ./jflex-1.9.1/examples/cup-interpreter/src/main/cup/parser.cup
-BUILD_DIR = bin
-MAIN_SRC = src/Main.java
-CUP_LIB = ./java-cup-bin-11b-20160615/java-cup-11b-runtime.jar
+# Makefile to compile and run JFlex lexer
 
-# Default target
-all: lexer parser compile
+JFLEX = jflex.jar
+LEXER_SRC = lang_lexer.flex
+JAVA_FILES = Main.java Lang_lexer.java
+INPUT_FILE = arquivo_teste.txt  # Arquivo de entrada padrão
 
-# Generate the lexer using JFlex
-lexer: $(FLEX_SRC)
-	java -jar $(JFLEX) -d src $(FLEX_SRC)
-rqu
-# Generate the parser using CUP
-parser: $(CUP_SRC)
-	java -jar $(CUP) -destdir $(BUILD_DIR) $(CUP_SRC)
+# Default target to generate the lexer, compile, and run
+all: lexer compile run
 
-# Compile all Java files including Main
-compile:
-	javac -cp $(CUP_LIB):$(BUILD_DIR) -d $(BUILD_DIR) src/sym.java src/parser.java $(LEXER_SRC) $(MAIN_SRC)
+# Generate lexer using JFlex
+lexer:
+	java -jar $(JFLEX) $(LEXER_SRC)
 
-# Run the application
-run:
-	java -cp $(CUP_LIB):$(BUILD_DIR) Main input.txt
+# Compile the Java files
+compile: Lang_lexer.java
+	javac $(JAVA_FILES)
 
-# Clean generated files (optional)
+# Run the main program with a specified input file
+run: 
+	java Main $(INPUT_FILE)
+
+# Clean generated files
 clean:
-	rm -f src/Lang_Lexer.java
-	rm -f src/sym.java src/parser.java
-	rm -rf $(BUILD_DIR)/*.class
+	rm -f Lang_lexer.java Lang_lexer.class Main.class *.java~ *.class

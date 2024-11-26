@@ -1,4 +1,4 @@
-public enum EnumToken {
+public enum TK {
     // Tipos de dados
     INT,          
     FLOAT,        
@@ -52,5 +52,9 @@ public enum EnumToken {
     FLOAT_LITERAL, 
 
     // Comentários 
-    COMMENT        
+    COMMENT,
+    
+    EOF,
+            
+    ARR
 }

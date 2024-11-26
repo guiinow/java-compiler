@@ -1,56 +1,23 @@
 public class Token {
 
-    // conferir se o código abaixo é válido
-    
-    private String token;
-    private String type;
+    public Object value;
+    public TK tk;
+    public int line;
+    public int column;
 
-    public Token(String token, String type) {
-        this.token = token;
-        this.type = type;
+    public Token(int line, int column, TK t) {
+        this.line = line;
+        this.column = column;
+        value = null;
+        tk = t;
     }
 
-    public String getToken() {
-        return token;
+    public Token(int line, int column, TK t, Object v) {
+        this(line, column, t);
+        value = v;
     }
-
-    public String getType() {
-        return type;
-    }
-
+    @Override
     public String toString() {
-        return "Token: " + token + " Type: " + type;
-    }
-}
-
-
-###############################################################################################
-
-public class Token {
-
-    // conferir se o código abaixo é válido
-    
-    private String token;
-    private EnumToken type; //Mudei String para EnumToken para evitar erros de digitação
-
-    public Token(String token, EnumToken type) {
-        // Validação para evitar valores nulos
-        if (token == null || type == null) {
-            throw new IllegalArgumentException("Token e Type não podem ser nulos.");
-        }
-        this.token = token;
-        this.type = type;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public EnumToken getType() {
-        return type;
-    }
-
-    public String toString() {
-        return "Token: " + token + " Type: " + type;
+        return "(" + line + "," + column + ") TK: " + tk + (value == null ? "" : "  val: " + value.toString());
     }
 }
