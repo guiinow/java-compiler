@@ -3,7 +3,7 @@
 JFLEX = jflex.jar
 LEXER_SRC = lang_lexer.flex
 JAVA_FILES = Main.java Lang_lexer.java
-INPUT_FILE = arquivo_teste.txt  # Arquivo de entrada padrão
+INPUT_FILE = teste.txt  # Arquivo de entrada padrão
 
 # Default target to generate the lexer, compile, and run
 all: lexer compile run

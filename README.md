@@ -19,17 +19,12 @@ Este projeto é um analisador léxico desenvolvido para a linguagem fictícia "L
 - **JFlex** (arquivo `jflex.jar`).
 
 ### Como Rodar
-Para executar o analisador léxico, basta utilizar o comando `make` passando o nome do arquivo de entrada como argumento:
+Para executar o analisador léxico, basta utilizar o comando `make`:
 
 ```bash
-make <nome_do_arquivo.txt>
+make 
 ```
-
-Exemplo:
-    
-```bash
-make teste.txt
-```
+Não é necessário passar argumentos, pois o arquivo de entrada (`teste.txt`) já está definido no código.
 
 ### O que Acontece?
 O arquivo **lang_lexer.flex** é processado pelo JFlex para gerar o lexer (**Lang_lexer.java**).
