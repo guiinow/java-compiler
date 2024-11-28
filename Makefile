@@ -1,7 +1,6 @@
-/* 
- * Guilherme Ferreira
- * Breno Rotte
- */
+# Autores:
+# Guilherme Ferreira
+# Breno Rotte
 
 # Makefile to compile and run JFlex lexer
 

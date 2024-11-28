@@ -1,7 +1,6 @@
-/* 
- * Guilherme Ferreira
- * Breno Rotte
- */
+// Autores:
+// Guilherme Ferreira
+// Breno Rotte
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
