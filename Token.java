@@ -1,3 +1,8 @@
+/* 
+ * Guilherme Ferreira
+ * Breno Rotte
+ */
+
 public class Token {
 
     public Object value;
