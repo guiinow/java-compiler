@@ -1,3 +1,8 @@
+/* 
+ * Guilherme Ferreira
+ * Breno Rotte
+ */
+
 public enum TK {
     // Tipos de dados
     INT,          
