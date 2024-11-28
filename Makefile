@@ -1,3 +1,8 @@
+/* 
+ * Guilherme Ferreira
+ * Breno Rotte
+ */
+
 # Makefile to compile and run JFlex lexer
 
 JFLEX = jflex.jar
