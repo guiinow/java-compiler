@@ -72,3 +72,6 @@ if (x > 5) {
 (3,0) TK: CLOSE_BRACES
 Token: (4,0) TK: EOF
 ```
+
+---
+## Neste parte serão feitas as documentações acerca do Parser e Interpreter
