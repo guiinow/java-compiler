@@ -4,7 +4,7 @@
 
 # Makefile to compile and run JFlex lexer
 
-JFLEX = tools/jflex.jar
+JFLEX = ../tools/jflex.jar
 LEXER_SRC = lang_lexer.flex
 JAVA_FILES = Main.java Lang_lexer.java
 INPUT_FILE = teste.txt  # Arquivo de entrada padrão
