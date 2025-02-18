@@ -21,7 +21,7 @@ import java.util.ArrayList;
     return new Token(yyline, yycolumn, TK.EOF);
 %eofval}
 
-%state ARR
+%state ESCAPE
 
 %{
     private ArrayList<Integer> arr;
@@ -46,12 +46,12 @@ import java.util.ArrayList;
 
     private char ascIIToChar(String s) {
 
-    String octalValue = s.substring(2, s.length() - 1); 
+    String decimalValue = s.substring(2, s.length() - 1); 
 
     try {
         // Converte o valor octal para um inteiro e depois para char
-        int decimalValue = Integer.parseInt(octalValue, 8);
-        return (char) decimalValue;
+        int decimal = Integer.parseInt(decimalValue);
+        return (char) decimal;
     } catch (NumberFormatException e) {
         throw new Error("Erro ao converter o valor octal '" + s + "' em um caractere ASCII.");
     }
@@ -60,13 +60,13 @@ import java.util.ArrayList;
 %}
 
 /* Macro Definitions */
-identifier    = [a-zA-Z_][a-zA-Z0-9_]*
+identifier    = [a-z][a-zA-Z0-9_]*
+tyid          = [A-Z][a-zA-Z0-9_]*
 integer       = [0-9]+
-float         = [0-9]+\.[0-9]*|\.[0-9]+|[0-9]+\.
+float         = [0-9]*\.[0-9]+
 dots = \.\.
 whitespace    = [ \n\t\r]+ | {comment} 
-escape = "'\\b'" | "'\\n'" | "'\\t'" | "'\\r'"
-ascII = "'\\[0-9]{1,3}'"
+ascII = "'\\[0-9]{3}'"
 comment = "{-" ~"-}"
 
 %%
@@ -131,23 +131,25 @@ comment = "{-" ~"-}"
     /* Integer and Float literals */
     {integer}        { return new Token(yyline, yycolumn, TK.INT_LITERAL, Integer.parseInt(yytext())); }
     {float}          { return new Token(yyline, yycolumn, TK.FLOAT_LITERAL, Float.parseFloat(yytext())); }
-    {dots}         { throw new Error("Sintaxe inválida: dois pontos seguidos <" + yytext() + ">"); }
     \.             { return new Token(yyline, yycolumn, TK.DOT); }
-    {escape}       { return new Token(yyline, yycolumn, TK.ESCAPE, yytext()); }
+    "\'\\"       { yybegin(ESCAPE);}
     {ascII}        { return new Token(yyline, yycolumn, TK.ASCII, ascIIToChar(yytext())); }
 
     /* Whitespace (ignored) */
     {whitespace}     { /* Ignore whitespaces */ }
 
-    "["            { yybegin(ARR); arr = new ArrayList<>(); }
+    "["            { return new Token(yyline, yycolumn, TK.OPEN_BRACKETS); }
+    "]"            { return new Token(yyline, yycolumn, TK.CLOSE_BRACKETS); }
 
     /* Error handling for illegal characters */
     [^]              { throw new Error("Illegal character <" + yytext() + "> at line " + yyline + ", column " + yycolumn); }
 }
 
 /* Array Handling State */
-<ARR> {
-    {integer}       { arr.add(Integer.parseInt(yytext())); }
-    {whitespace}    { /* Ignore whitespaces in ARR state */ }
-    "]"             { yybegin(YYINITIAL); return new Token(yyline, yycolumn, TK.ARR, arr); }
+<ESCAPE> {
+"n\'" { yybegin (YYINITIAL); return new Token(yyline, yycolumn, TK.ESCAPE, '\n'); }
+"t\'" { yybegin (YYINITIAL); return new Token(yyline, yycolumn, TK.ESCAPE, '\t'); }
+"b\'" { yybegin (YYINITIAL); return new Token(yyline, yycolumn, TK.ESCAPE, '\b'); }
+"r\'" { yybegin (YYINITIAL); return new Token(yyline, yycolumn, TK.ESCAPE, '\r'); }
+"\\\'" { yybegin (YYINITIAL); return new Token(yyline, yycolumn, TK.ESCAPE, '\\'); }
 }

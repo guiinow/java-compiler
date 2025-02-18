@@ -44,7 +44,9 @@ public enum TK {
     // Símbolos de pontuação
     OPEN_PARENTHESIS,  
     CLOSE_PARENTHESIS, 
-    OPEN_BRACES,       
+    OPEN_BRACES,
+    OPEN_BRACKETS,
+    CLOSE_BRACKETS,
     CLOSE_BRACES,      
     SEMICOLON,         
     COMMA,             
