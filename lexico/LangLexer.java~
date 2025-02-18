@@ -6,12 +6,14 @@
  * Guilherme Ferreira
  * Breno Rotte
  */
+package lang.parser;
 
 import java.util.ArrayList;
+import java_cup.runtime.Symbol;
 
 
 @SuppressWarnings("fallthrough")
-public class Lang_lexer {
+public class LangLexer {
 
   /** This character denotes the end of file. */
   public static final int YYEOF = -1;
@@ -21,7 +23,6 @@ public class Lang_lexer {
 
   // Lexical states.
   public static final int YYINITIAL = 0;
-  public static final int ARR = 2;
 
   /**
    * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
@@ -30,7 +31,7 @@ public class Lang_lexer {
    * l is of the form l = 2*k, k a non negative integer
    */
   private static final int ZZ_LEXSTATE[] = {
-     0,  0,  1, 1
+     0, 0
   };
 
   /**
@@ -68,15 +69,14 @@ public class Lang_lexer {
 
   private static final String ZZ_CMAP_BLOCKS_PACKED_0 =
     "\11\0\1\1\1\2\2\3\1\4\22\0\1\1\1\5"+
-    "\3\0\1\6\1\7\1\10\1\11\1\12\1\13\1\14"+
-    "\1\15\1\16\1\17\1\20\1\21\1\22\1\23\1\24"+
-    "\5\23\1\25\1\26\1\27\1\30\1\31\1\32\2\0"+
-    "\1\33\1\34\1\35\2\33\1\36\2\33\1\37\21\33"+
-    "\1\40\1\41\1\42\1\0\1\33\1\0\1\43\1\44"+
-    "\1\33\1\45\1\46\1\47\1\33\1\50\1\51\2\33"+
-    "\1\52\1\33\1\53\1\54\1\55\1\33\1\56\1\57"+
-    "\1\60\1\61\5\33\1\62\1\0\1\63\7\0\1\3"+
-    "\u01a2\0\2\3\326\0";
+    "\5\0\1\6\1\7\1\10\1\0\1\11\1\0\1\12"+
+    "\1\13\1\0\1\14\2\15\1\16\5\15\1\17\2\0"+
+    "\1\20\1\21\1\22\2\0\1\23\1\24\1\25\2\23"+
+    "\1\26\2\23\1\27\21\23\1\30\1\31\1\32\1\0"+
+    "\1\23\1\0\1\33\2\34\1\35\1\36\1\37\1\34"+
+    "\1\40\1\41\2\34\1\42\1\34\1\43\1\44\2\34"+
+    "\1\45\1\46\1\47\1\50\5\34\1\51\1\0\1\52"+
+    "\7\0\1\3\u01a2\0\2\3\326\0";
 
   private static int [] zzUnpackcmap_blocks() {
     int [] result = new int[768];
@@ -103,19 +103,15 @@ public class Lang_lexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\2\0\1\1\1\2\1\3\1\4\1\1\1\5\1\6"+
-    "\1\7\1\10\1\11\1\12\1\13\1\14\1\15\1\16"+
-    "\1\17\1\20\1\21\1\22\1\23\5\24\1\25\10\24"+
-    "\1\26\1\27\1\30\1\31\1\32\1\0\1\33\1\34"+
-    "\2\0\1\35\1\36\1\37\1\40\1\41\1\42\7\24"+
-    "\1\43\5\24\4\0\2\44\3\24\1\45\11\24\3\0"+
-    "\1\46\1\47\1\50\1\24\1\51\1\52\2\24\1\53"+
-    "\1\24\1\54\1\24\1\55\1\56\1\30\1\0\1\57"+
-    "\1\60\1\24\1\61\1\24\1\0\1\24\1\62\1\0"+
-    "\1\63\5\0\1\64";
+    "\1\1\1\2\1\3\2\2\1\4\1\5\1\6\1\7"+
+    "\1\2\1\1\1\10\1\11\1\12\4\2\1\13\1\14"+
+    "\7\15\1\2\1\16\2\0\1\17\1\0\1\20\4\0"+
+    "\3\15\1\21\2\15\2\0\2\22\3\0\1\23\5\15"+
+    "\2\0\1\24\1\25\1\0\1\26\1\27\1\15\1\30"+
+    "\1\31\1\32\1\0\1\33\1\34\5\0\1\35";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[119];
+    int [] result = new int[77];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -140,24 +136,19 @@ public class Lang_lexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\64\0\150\0\234\0\320\0\150\0\u0104\0\u0138"+
-    "\0\150\0\150\0\150\0\150\0\150\0\u016c\0\u01a0\0\150"+
-    "\0\u01d4\0\u0208\0\150\0\u023c\0\u0270\0\u02a4\0\u02d8\0\u030c"+
-    "\0\u0340\0\u0374\0\u03a8\0\150\0\u03dc\0\u0410\0\u0444\0\u0478"+
-    "\0\u04ac\0\u04e0\0\u0514\0\u0548\0\u057c\0\150\0\u05b0\0\u05e4"+
-    "\0\150\0\u0618\0\150\0\150\0\u064c\0\u0680\0\150\0\u06b4"+
-    "\0\150\0\150\0\150\0\150\0\u06e8\0\u071c\0\u0750\0\u0784"+
-    "\0\u07b8\0\u07ec\0\u0820\0\u02d8\0\u0854\0\u0888\0\u08bc\0\u08f0"+
-    "\0\u0924\0\u0958\0\u098c\0\u09c0\0\u09f4\0\150\0\u0a28\0\u0a5c"+
-    "\0\u0a90\0\u0ac4\0\u02d8\0\u0af8\0\u0b2c\0\u0b60\0\u0b94\0\u0bc8"+
-    "\0\u0bfc\0\u0c30\0\u0c64\0\u0c98\0\u0ccc\0\u0d00\0\u0d34\0\150"+
-    "\0\u02d8\0\u02d8\0\u0d68\0\u02d8\0\u02d8\0\u0d9c\0\u0dd0\0\u02d8"+
-    "\0\u0e04\0\u02d8\0\u0e38\0\u02d8\0\150\0\150\0\u0e6c\0\u02d8"+
-    "\0\u02d8\0\u0ea0\0\u02d8\0\u0ed4\0\u0f08\0\u0f3c\0\u02d8\0\u0f70"+
-    "\0\u02d8\0\u0fa4\0\u0fd8\0\u100c\0\u1040\0\u1074\0\150";
+    "\0\0\0\53\0\126\0\201\0\254\0\53\0\53\0\53"+
+    "\0\327\0\u0102\0\u012d\0\53\0\u0158\0\53\0\u0183\0\u01ae"+
+    "\0\u01d9\0\u0204\0\53\0\53\0\u022f\0\u025a\0\u0285\0\u02b0"+
+    "\0\u02db\0\u0306\0\u0331\0\u035c\0\53\0\u0387\0\u03b2\0\u0102"+
+    "\0\u0102\0\53\0\u03dd\0\u0408\0\u0433\0\u045e\0\u0489\0\u04b4"+
+    "\0\u04df\0\u022f\0\u050a\0\u0535\0\u0560\0\u058b\0\53\0\u05b6"+
+    "\0\u05e1\0\u060c\0\u0637\0\53\0\u0662\0\u068d\0\u06b8\0\u06e3"+
+    "\0\u070e\0\u0739\0\u0764\0\53\0\53\0\u078f\0\u022f\0\u022f"+
+    "\0\u07ba\0\u022f\0\u022f\0\53\0\u07e5\0\53\0\u022f\0\u0810"+
+    "\0\u083b\0\u0866\0\u0891\0\u08bc\0\53";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[119];
+    int [] result = new int[77];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -180,72 +171,45 @@ public class Lang_lexer {
   private static final int [] ZZ_TRANS = zzUnpacktrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\3\2\4\1\3\1\4\1\5\1\6\1\7\1\10"+
-    "\1\11\1\12\1\13\1\14\1\15\1\16\1\17\1\20"+
-    "\5\21\1\22\1\23\1\24\1\25\1\26\1\27\1\30"+
-    "\1\31\1\32\1\33\1\34\2\3\2\27\1\35\1\36"+
-    "\1\37\1\27\1\40\1\27\1\41\1\27\1\42\1\43"+
-    "\1\27\1\44\1\27\1\45\1\46\1\0\2\47\1\0"+
-    "\1\47\14\0\5\50\14\0\1\51\17\0\1\52\66\0"+
-    "\2\4\1\0\1\4\110\0\1\53\41\0\1\54\115\0"+
-    "\1\55\40\0\1\56\64\0\1\57\1\0\5\60\55\0"+
-    "\1\60\1\0\5\21\64\0\1\61\66\0\1\62\63\0"+
-    "\1\63\63\0\1\64\53\0\5\27\5\0\5\27\3\0"+
-    "\17\27\23\0\5\27\5\0\5\27\3\0\11\27\1\65"+
-    "\5\27\23\0\5\27\5\0\5\27\3\0\5\27\1\66"+
-    "\11\27\23\0\5\27\5\0\5\27\3\0\7\27\1\67"+
-    "\7\27\23\0\5\27\5\0\5\27\3\0\10\27\1\70"+
-    "\6\27\23\0\5\27\5\0\5\27\3\0\1\71\16\27"+
-    "\23\0\5\27\5\0\5\27\3\0\7\27\1\72\7\27"+
-    "\23\0\5\27\5\0\5\27\3\0\1\73\16\27\23\0"+
-    "\5\27\5\0\5\27\3\0\4\27\1\74\10\27\1\75"+
-    "\1\27\23\0\5\27\5\0\5\27\3\0\16\27\1\76"+
-    "\23\0\5\27\5\0\5\27\3\0\13\27\1\77\3\27"+
-    "\23\0\5\27\5\0\5\27\3\0\3\27\1\100\13\27"+
-    "\23\0\5\27\5\0\5\27\3\0\13\27\1\101\3\27"+
-    "\20\0\1\102\46\0\2\47\1\0\1\47\100\0\5\50"+
-    "\54\0\1\103\105\0\1\104\3\0\1\105\6\0\1\105"+
-    "\2\0\1\105\1\0\1\105\3\0\2\56\2\106\1\107"+
-    "\57\56\21\0\5\60\57\0\5\27\5\0\5\27\3\0"+
-    "\11\27\1\110\5\27\23\0\5\27\5\0\5\27\3\0"+
-    "\1\111\16\27\23\0\5\27\5\0\5\27\3\0\11\27"+
-    "\1\112\5\27\23\0\5\27\5\0\5\27\3\0\15\27"+
-    "\1\113\1\27\23\0\5\27\5\0\5\27\3\0\15\27"+
-    "\1\114\1\27\23\0\5\27\5\0\5\27\3\0\14\27"+
-    "\1\115\2\27\23\0\5\27\5\0\5\27\3\0\7\27"+
-    "\1\116\7\27\23\0\5\27\5\0\5\27\3\0\3\27"+
-    "\1\117\13\27\23\0\5\27\5\0\5\27\3\0\7\27"+
-    "\1\120\7\27\23\0\5\27\5\0\5\27\3\0\6\27"+
-    "\1\121\10\27\23\0\5\27\5\0\5\27\3\0\1\122"+
-    "\14\27\1\123\1\27\23\0\5\27\5\0\5\27\3\0"+
-    "\16\27\1\124\2\0\16\102\1\125\45\102\16\103\1\126"+
-    "\45\103\21\0\1\127\52\0\1\130\55\0\1\106\102\0"+
-    "\5\27\5\0\5\27\3\0\7\27\1\131\7\27\23\0"+
-    "\5\27\5\0\5\27\3\0\13\27\1\132\3\27\23\0"+
-    "\5\27\5\0\5\27\3\0\1\133\16\27\23\0\5\27"+
-    "\5\0\5\27\3\0\1\134\16\27\23\0\5\27\5\0"+
-    "\5\27\3\0\3\27\1\135\13\27\23\0\5\27\5\0"+
-    "\5\27\3\0\14\27\1\136\2\27\23\0\5\27\5\0"+
-    "\5\27\3\0\13\27\1\137\3\27\23\0\5\27\5\0"+
-    "\5\27\3\0\7\27\1\140\7\27\23\0\5\27\5\0"+
-    "\5\27\3\0\10\27\1\141\6\27\23\0\5\27\5\0"+
-    "\5\27\3\0\2\27\1\142\14\27\23\0\5\27\5\0"+
-    "\5\27\3\0\16\27\1\143\23\0\5\27\5\0\5\27"+
-    "\3\0\3\27\1\144\13\27\2\0\16\102\1\125\44\102"+
-    "\1\145\16\103\1\126\44\103\1\146\16\0\1\147\66\0"+
-    "\5\27\5\0\5\27\3\0\15\27\1\150\1\27\23\0"+
-    "\5\27\5\0\5\27\3\0\3\27\1\151\13\27\23\0"+
-    "\5\27\5\0\5\27\3\0\1\152\16\27\23\0\5\27"+
-    "\5\0\5\27\3\0\15\27\1\153\1\27\23\0\5\27"+
-    "\5\0\5\27\3\0\13\27\1\154\3\27\27\0\1\155"+
-    "\57\0\5\27\5\0\5\27\3\0\15\27\1\156\1\27"+
-    "\23\0\5\27\5\0\5\27\3\0\10\27\1\157\6\27"+
-    "\44\0\1\160\42\0\5\27\5\0\5\27\3\0\3\27"+
-    "\1\161\13\27\64\0\1\162\23\0\1\163\56\0\1\164"+
-    "\72\0\1\165\122\0\1\166\10\0\1\167\53\0";
+    "\1\2\2\3\1\2\1\3\1\4\1\5\1\6\1\7"+
+    "\1\10\1\11\1\12\4\13\1\14\1\15\1\16\1\2"+
+    "\1\17\1\20\1\21\1\22\1\23\1\2\1\24\2\25"+
+    "\1\26\1\27\1\30\1\25\1\31\1\25\1\32\3\25"+
+    "\1\33\1\25\1\34\1\2\54\0\2\3\1\0\1\3"+
+    "\67\0\1\35\62\0\1\36\33\0\1\37\54\0\4\40"+
+    "\46\0\1\41\4\13\54\0\1\42\75\0\1\43\46\0"+
+    "\1\44\54\0\1\45\53\0\1\46\21\0\1\25\1\0"+
+    "\4\25\3\0\5\25\3\0\16\25\14\0\1\25\1\0"+
+    "\4\25\3\0\5\25\3\0\1\47\15\25\14\0\1\25"+
+    "\1\0\4\25\3\0\5\25\3\0\7\25\1\50\6\25"+
+    "\14\0\1\25\1\0\4\25\3\0\5\25\3\0\1\51"+
+    "\15\25\14\0\1\25\1\0\4\25\3\0\5\25\3\0"+
+    "\4\25\1\52\11\25\14\0\1\25\1\0\4\25\3\0"+
+    "\5\25\3\0\15\25\1\53\14\0\1\25\1\0\4\25"+
+    "\3\0\5\25\3\0\12\25\1\54\3\25\14\0\1\55"+
+    "\70\0\1\56\22\0\2\37\2\57\1\60\46\37\44\0"+
+    "\1\61\41\0\1\62\63\0\1\63\55\0\1\64\15\0"+
+    "\1\25\1\0\4\25\3\0\5\25\3\0\14\25\1\65"+
+    "\1\25\14\0\1\25\1\0\4\25\3\0\5\25\3\0"+
+    "\13\25\1\66\2\25\14\0\1\25\1\0\4\25\3\0"+
+    "\5\25\3\0\7\25\1\67\6\25\14\0\1\25\1\0"+
+    "\4\25\3\0\5\25\3\0\7\25\1\70\6\25\14\0"+
+    "\1\25\1\0\4\25\3\0\5\25\3\0\15\25\1\71"+
+    "\2\0\12\55\1\72\40\55\14\0\1\73\40\0\1\57"+
+    "\112\0\1\74\55\0\1\75\40\0\1\76\31\0\1\25"+
+    "\1\0\4\25\3\0\5\25\3\0\1\77\15\25\14\0"+
+    "\1\25\1\0\4\25\3\0\5\25\3\0\3\25\1\100"+
+    "\12\25\14\0\1\25\1\0\4\25\3\0\5\25\3\0"+
+    "\13\25\1\101\2\25\14\0\1\25\1\0\4\25\3\0"+
+    "\5\25\3\0\7\25\1\102\6\25\14\0\1\25\1\0"+
+    "\4\25\3\0\5\25\3\0\3\25\1\103\12\25\2\0"+
+    "\12\55\1\72\37\55\1\104\12\0\1\105\107\0\1\106"+
+    "\15\0\1\25\1\0\4\25\3\0\5\25\3\0\3\25"+
+    "\1\107\12\25\21\0\1\110\65\0\1\111\71\0\1\112"+
+    "\17\0\1\113\106\0\1\114\6\0\1\115\44\0";
 
   private static int [] zzUnpacktrans() {
-    int [] result = new int[4264];
+    int [] result = new int[2279];
     int offset = 0;
     offset = zzUnpacktrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -288,14 +252,14 @@ public class Lang_lexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\1\11\2\1\1\11\2\1\5\11\2\1\1\11"+
-    "\2\1\1\11\10\1\1\11\11\1\1\11\2\1\1\11"+
-    "\1\0\2\11\2\0\1\11\1\1\4\11\15\1\4\0"+
-    "\1\11\16\1\3\0\1\11\14\1\2\11\1\0\5\1"+
-    "\1\0\2\1\1\0\1\1\5\0\1\11";
+    "\1\1\1\11\3\1\3\11\3\1\1\11\1\1\1\11"+
+    "\4\1\2\11\10\1\1\11\2\0\1\1\1\0\1\11"+
+    "\4\0\6\1\2\0\1\11\1\1\3\0\1\11\5\1"+
+    "\2\0\2\11\1\0\5\1\1\11\1\0\1\11\1\1"+
+    "\5\0\1\11";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[119];
+    int [] result = new int[77];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -376,36 +340,32 @@ public class Lang_lexer {
     private ArrayList<Integer> arr;
 
     private int toInt(String s) {
-      try {
-          return Integer.parseInt(s);
-      } catch (NumberFormatException e) {
-          System.out.println("Impossible error converting " + s + " to integer");
-          return 0;
-      }
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            System.out.println("Impossible error converting " + s + " to integer");
+            return 0;
+        }
     }
 
     private float toFloat(String s) {
-      try {
-        return Float.parseFloat(s);
-      } catch (NumberFormatException e) {
-        System.out.println("Impossible error converting " + s + " to integer");
-        return 0;
-      }
+        try {
+            return Float.parseFloat(s);
+        } catch (NumberFormatException e) {
+            System.out.println("Impossible error converting " + s + " to float");
+            return 0;
+        }
     }
 
     private char ascIIToChar(String s) {
-
-    String octalValue = s.substring(2, s.length() - 1); 
-
-    try {
-        // Converte o valor octal para um inteiro e depois para char
-        int decimalValue = Integer.parseInt(octalValue, 8);
-        return (char) decimalValue;
-    } catch (NumberFormatException e) {
-        throw new Error("Erro ao converter o valor octal '" + s + "' em um caractere ASCII.");
+        String decimalValue = s.substring(2, s.length() - 1);
+        try {
+            int decimal = Integer.parseInt(decimalValue);
+            return (char) decimal;
+        } catch (NumberFormatException e) {
+            throw new Error("Erro ao converter o valor inteiro '" + s + "' em um caractere ASCII.");
+        }
     }
-}
-
 
 
   /**
@@ -413,7 +373,7 @@ public class Lang_lexer {
    *
    * @param   in  the java.io.Reader to read input from.
    */
-  public Lang_lexer(java.io.Reader in) {
+  public LangLexer(java.io.Reader in) {
     this.zzReader = in;
   }
 
@@ -677,7 +637,7 @@ public class Lang_lexer {
    * @return the next token.
    * @exception java.io.IOException if any I/O-Error occurs.
    */
-  public Token nextToken() throws java.io.IOException
+  public Symbol nextToken() throws java.io.IOException
   {
     int zzInput;
     int zzAction;
@@ -814,271 +774,156 @@ public class Lang_lexer {
 
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
-          {     return new Token(yyline, yycolumn, TK.EOF);
+          {     return new Symbol(LangParserSym.EOF, yyline + 1, yycolumn + 1);
  }
       }
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
+            { return new Symbol(LangParserSym.INT_LITERAL, yyline + 1, yycolumn + 1, toInt(yytext()));
+            }
+          // fall through
+          case 30: break;
+          case 2:
             { throw new Error("Illegal character <" + yytext() + "> at line " + yyline + ", column " + yycolumn);
             }
           // fall through
-          case 53: break;
-          case 2:
+          case 31: break;
+          case 3:
             { /* Ignore whitespaces */
             }
           // fall through
-          case 54: break;
-          case 3:
-            { return new Token(yyline, yycolumn, TK.NOT);
-            }
-          // fall through
-          case 55: break;
+          case 32: break;
           case 4:
-            { return new Token(yyline, yycolumn, TK.MOD);
+            { return new Symbol(LangParserSym.OPEN_PARENTHESIS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 56: break;
+          case 33: break;
           case 5:
-            { return new Token(yyline, yycolumn, TK.QUOTATION_MARKS);
+            { return new Symbol(LangParserSym.CLOSE_PARENTHESIS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 57: break;
+          case 34: break;
           case 6:
-            { return new Token(yyline, yycolumn, TK.OPEN_PARENTHESIS);
+            { return new Symbol(LangParserSym.PLUS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 58: break;
+          case 35: break;
           case 7:
-            { return new Token(yyline, yycolumn, TK.CLOSE_PARENTHESIS);
+            { return new Symbol(LangParserSym.MINUS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 59: break;
+          case 36: break;
           case 8:
-            { return new Token(yyline, yycolumn, TK.TIMES);
+            { return new Symbol(LangParserSym.LESS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 60: break;
+          case 37: break;
           case 9:
-            { return new Token(yyline, yycolumn, TK.PLUS);
+            { return new Symbol(LangParserSym.ASSIGN, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 61: break;
+          case 38: break;
           case 10:
-            { return new Token(yyline, yycolumn, TK.COMMA);
+            { return new Symbol(LangParserSym.GREATER, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 62: break;
+          case 39: break;
           case 11:
-            { return new Token(yyline, yycolumn, TK.MINUS);
+            { return new Symbol(LangParserSym.OPEN_BRACKETS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 63: break;
+          case 40: break;
           case 12:
-            { return new Token(yyline, yycolumn, TK.DOT);
+            { return new Symbol(LangParserSym.CLOSE_BRACKETS, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 64: break;
+          case 41: break;
           case 13:
-            { return new Token(yyline, yycolumn, TK.DIVIDE);
+            { return new Symbol(LangParserSym.IDENTIFIER, yyline + 1, yycolumn + 1, yytext());
             }
           // fall through
-          case 65: break;
+          case 42: break;
           case 14:
-            { return new Token(yyline, yycolumn, TK.INT_LITERAL, Integer.parseInt(yytext()));
+            { return new Symbol(LangParserSym.DIFFERENT, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 66: break;
+          case 43: break;
           case 15:
-            { return new Token(yyline, yycolumn, TK.COLON);
+            { return new Symbol(LangParserSym.FLOAT_LITERAL, yyline + 1, yycolumn + 1, toFloat(yytext()));
             }
           // fall through
-          case 67: break;
+          case 44: break;
           case 16:
-            { return new Token(yyline, yycolumn, TK.SEMICOLON);
+            { return new Symbol(LangParserSym.EQUAL, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 68: break;
+          case 45: break;
           case 17:
-            { return new Token(yyline, yycolumn, TK.LESS);
+            { return new Symbol(LangParserSym.IF, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 69: break;
+          case 46: break;
           case 18:
-            { return new Token(yyline, yycolumn, TK.ASSIGN);
-            }
-          // fall through
-          case 70: break;
-          case 19:
-            { return new Token(yyline, yycolumn, TK.GREATER);
-            }
-          // fall through
-          case 71: break;
-          case 20:
-            { return new Token(yyline, yycolumn, TK.IDENTIFIER, yytext());
-            }
-          // fall through
-          case 72: break;
-          case 21:
-            { yybegin(ARR); arr = new ArrayList<>();
-            }
-          // fall through
-          case 73: break;
-          case 22:
-            { return new Token(yyline, yycolumn, TK.OPEN_BRACES);
-            }
-          // fall through
-          case 74: break;
-          case 23:
-            { return new Token(yyline, yycolumn, TK.CLOSE_BRACES);
-            }
-          // fall through
-          case 75: break;
-          case 24:
-            { /* Ignore whitespaces in ARR state */
-            }
-          // fall through
-          case 76: break;
-          case 25:
-            { arr.add(Integer.parseInt(yytext()));
-            }
-          // fall through
-          case 77: break;
-          case 26:
-            { yybegin(YYINITIAL); return new Token(yyline, yycolumn, TK.ARR, arr);
-            }
-          // fall through
-          case 78: break;
-          case 27:
-            { return new Token(yyline, yycolumn, TK.DIFFERENT);
-            }
-          // fall through
-          case 79: break;
-          case 28:
-            { return new Token(yyline, yycolumn, TK.AND);
-            }
-          // fall through
-          case 80: break;
-          case 29:
-            { throw new Error("Sintaxe inválida: dois pontos seguidos <" + yytext() + ">");
-            }
-          // fall through
-          case 81: break;
-          case 30:
-            { return new Token(yyline, yycolumn, TK.FLOAT_LITERAL, Float.parseFloat(yytext()));
-            }
-          // fall through
-          case 82: break;
-          case 31:
-            { return new Token(yyline, yycolumn, TK.DOUBLE_COLON);
-            }
-          // fall through
-          case 83: break;
-          case 32:
-            { return new Token(yyline, yycolumn, TK.LESS_EQUAL);
-            }
-          // fall through
-          case 84: break;
-          case 33:
-            { return new Token(yyline, yycolumn, TK.EQUAL);
-            }
-          // fall through
-          case 85: break;
-          case 34:
-            { return new Token(yyline, yycolumn, TK.GREATER_EQUAL);
-            }
-          // fall through
-          case 86: break;
-          case 35:
-            { return new Token(yyline, yycolumn, TK.IF);
-            }
-          // fall through
-          case 87: break;
-          case 36:
             { 
             }
           // fall through
-          case 88: break;
-          case 37:
-            { return new Token(yyline, yycolumn, TK.INT);
+          case 47: break;
+          case 19:
+            { return new Symbol(LangParserSym.INT, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 89: break;
-          case 38:
-            { return new Token(yyline, yycolumn, TK.ESCAPE, yytext());
+          case 48: break;
+          case 20:
+            { return new Symbol(LangParserSym.BOOL, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 90: break;
-          case 39:
-            { return new Token(yyline, yycolumn, TK.BOOL);
+          case 49: break;
+          case 21:
+            { return new Symbol(LangParserSym.CHAR, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 91: break;
-          case 40:
-            { return new Token(yyline, yycolumn, TK.CHAR);
+          case 50: break;
+          case 22:
+            { return new Symbol(LangParserSym.DATA, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 92: break;
-          case 41:
-            { return new Token(yyline, yycolumn, TK.DATA);
+          case 51: break;
+          case 23:
+            { return new Symbol(LangParserSym.ELSE, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 93: break;
-          case 42:
-            { return new Token(yyline, yycolumn, TK.ELSE);
+          case 52: break;
+          case 24:
+            { return new Symbol(LangParserSym.NULL, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 94: break;
-          case 43:
-            { return new Token(yyline, yycolumn, TK.NULL);
+          case 53: break;
+          case 25:
+            { return new Symbol(LangParserSym.TRUE, yyline + 1, yycolumn + 1, true);
             }
           // fall through
-          case 95: break;
-          case 44:
-            { return new Token(yyline, yycolumn, TK.READ);
-            }
-          // fall through
-          case 96: break;
-          case 45:
-            { return new Token(yyline, yycolumn, TK.TRUE);
-            }
-          // fall through
-          case 97: break;
-          case 46:
+          case 54: break;
+          case 26:
             { /* Ignore comments */
             }
           // fall through
-          case 98: break;
-          case 47:
-            { return new Token(yyline, yycolumn, TK.FLOAT);
+          case 55: break;
+          case 27:
+            { return new Symbol(LangParserSym.FLOAT, yyline + 1, yycolumn + 1);
             }
           // fall through
-          case 99: break;
-          case 48:
-            { return new Token(yyline, yycolumn, TK.FALSE);
+          case 56: break;
+          case 28:
+            { return new Symbol(LangParserSym.FALSE, yyline + 1, yycolumn + 1, false);
             }
           // fall through
-          case 100: break;
-          case 49:
-            { return new Token(yyline, yycolumn, TK.PRINT);
+          case 57: break;
+          case 29:
+            { return new Symbol(LangParserSym.ASCII, yyline + 1, yycolumn + 1, ascIIToChar(yytext()));
             }
           // fall through
-          case 101: break;
-          case 50:
-            { return new Token(yyline, yycolumn, TK.RETURN);
-            }
-          // fall through
-          case 102: break;
-          case 51:
-            { return new Token(yyline, yycolumn, TK.ITERATE);
-            }
-          // fall through
-          case 103: break;
-          case 52:
-            { return new Token(yyline, yycolumn, TK.ASCII, ascIIToChar(yytext()));
-            }
-          // fall through
-          case 104: break;
+          case 58: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }
