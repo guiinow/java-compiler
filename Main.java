@@ -6,8 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java_cup.runtime.Symbol;
-import parser.Parser;
-import parser.sym;
+import parser.LangParser;
+import parser.LangParserSym;
+import parser.LangLexer;
 
 public class Main {
 
@@ -20,23 +21,9 @@ public class Main {
 
         try {
             // Inicializa o analisador léxico
-            Lang_lexer lexer = new Lang_lexer(new FileReader(args[0]));
-
-            // Processa os tokens e imprime
-            Token token = lexer.nextToken();
-            while (token.tk != TK.EOF) {
-                System.out.println(token.toString());
-                token = lexer.nextToken();
-            }
-
-            // Executa o parser
-            System.out.println("\nIniciando análise sintática...");
-            FileReader file = new FileReader(args[0]);
-            Lang_lexer lex = new Lang_lexer(file);
-            Parser parser = new Parser(lex);
-            Symbol result = parser.parse();
-
-            System.out.println("Análise sintática concluída com sucesso!");
+            LangLexer lexer = new LangLexer(new FileReader(args[0]));
+            LangParser p = new LangParser(lexer);
+            p.parse();
 
         } catch (FileNotFoundException e) {
             System.out.println("O arquivo " + args[0] + " não foi encontrado.");
