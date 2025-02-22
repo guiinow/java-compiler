@@ -135,31 +135,6 @@ class WhileNode extends Node {
     }
 }
 
-// Nó para estrutura de repetição FOR
-class ForNode extends Node {
-    private Node initialization, condition, increment, body;
-
-    public ForNode(Node initialization, Node condition, Node increment, Node body) {
-        this.initialization = initialization;
-        this.condition = condition;
-        this.increment = increment;
-        this.body = body;
-    }
-
-    @Override
-    public void print() {
-        System.out.print("for (");
-        initialization.print();
-        System.out.print(" ");
-        condition.print();
-        System.out.print("; ");
-        increment.print();
-        System.out.println(") {");
-        body.print();
-        System.out.println("}");
-    }
-}
-
 // Nó para print
 class PrintNode extends Node {
     private Node expression;
@@ -212,16 +187,8 @@ public class AST {
         // Criando um WHILE: while (x > 0) { x = x - 1; }
         Node whileStatement = new WhileNode(condition, ifBody);
 
-        // Criando um FOR: for (i = 0; i < 10; i = i + 1) { print(i); }
-        Node forStatement = new ForNode(
-            new AssignmentNode(new IdentifierNode("i"), new NumberNode(0)),
-            new BooleanOperationNode(new IdentifierNode("i"), "<", new NumberNode(10)),
-            new AssignmentNode(new IdentifierNode("i"), new BinaryOperationNode(new IdentifierNode("i"), "+", new NumberNode(1))),
-            new PrintNode(new IdentifierNode("i"))
-        );
-
         // Criando um bloco de código com todas as instruções
-        Node program = new BlockNode(assignment, ifStatement, whileStatement, forStatement);
+        Node program = new BlockNode(assignment, ifStatement, whileStatement);
 
         // Exibir a AST formatada
         program.print();
