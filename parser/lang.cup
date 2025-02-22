@@ -1,17 +1,34 @@
-parser code {
-  import java_cup.runtime.*;
-}
+package parser;
+
+class LangParser;
+parser code {:
+    // Connect this parser to a scanner!
+    LangLexer s;
+    public LangParser(LangLexer s){ this.s=s; }
+    // Get the line
+:}
+
+init with {:               :};
+scan with {: return s.nextToken(); :};
 
 // Declaração dos terminais
-terminal Int, Char, Bool, Float, TYID, ID, INT, FLOAT, CHAR;
-terminal LBRACE, RBRACE, LPAREN, RPAREN, LBRACK, RBRACK;
-terminal COLONCOLON, EQUALS, AND, LT, EQ, NEQ, PLUS, MINUS, STAR, SLASH, PERCENT, NOT;
-terminal IF, ELSE, ITERATE, READ, PRINT, RETURN, NEW, NULL, TRUE, FALSE;
+terminal INT_LITERAL, TRUE, FALSE, PLUS; //Char, Bool, Float, TYID, ID, INT, FLOAT, CHAR
+//terminal LBRACE, RBRACE, LPAREN, RPAREN, LBRACK, RBRACK;
+//terminal COLONCOLON, EQUALS, AND, LT, EQ, NEQ, PLUS, MINUS, STAR, SLASH, PERCENT, NOT;
+//terminal IF, ELSE, ITERATE, READ, PRINT, RETURN, NEW, NULL, TRUE, FALSE;
 
 // Declaração dos não terminais
-non terminal prog, data, decl, func, params, type, btype, block, stmtBlock, cmd, loopCond, exp, rexp, aexp, mexp, sexp, pexp, lvalue, exps;
+non terminal exp;
 
-// Produções
+precedence left PLUS;
+exp ::= INT_LITERAL 
+    | TRUE
+    | FALSE
+    | exp PLUS exp  
+    ;
+
+
+/* Produções
 prod prog ::= data func;
 prod data ::= "data" TYID LPAREN decl RPAREN;
 prod decl ::= ID EQUALS type SEMI;
@@ -37,4 +54,5 @@ prod mexp ::= mexp STAR sexp | mexp SLASH sexp | mexp PERCENT sexp | sexp;
 prod sexp ::= NOT sexp | MINUS sexp | TRUE | FALSE | NULL | INT | FLOAT | CHAR | pexp;
 prod pexp ::= lvalue | LPAREN exp RPAREN | NEW type ( LBRACK exp RBRACK )? | ID LPAREN exps RPAREN LBRACK exp RBRACK | ID;
 prod lvalue ::= lvalue LBRACK exp RBRACK | lvalue DOT ID;
-prod exps ::= exp ( COMMA exp )*;
+prod exps ::= exp ( COMMA exp )*; 
+*/

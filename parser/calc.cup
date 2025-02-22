@@ -1,0 +1,141 @@
+/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
+
+package calc.parser;
+
+import java_cup.runtime.*;
+import calc.nodes.*;
+import calc.nodes.decl.*;
+import calc.nodes.command.*;
+import calc.nodes.expr.*;
+import calc.nodes.types.*;
+import java.util.ArrayList;
+
+
+class CalcParser;
+parser code {:
+    // Connect this parser to a scanner!
+    CalcLexer s;
+    public CalcParser(CalcLexer s){ this.s=s; }
+    // Get the line
+:}
+
+init with {:               :};
+scan with {: return s.nextToken(); :};
+
+/* define how to connect to the scanner! */
+
+/*
+   Terminais
+*/
+terminal            SEMI, PLUS, MINUS, TIMES, DIV, LP, RP, ATTR, INTER, OSB, CSB,
+                    OB, CB, COLON, COMA, TYINT, TYFLOAT, TYBOOL, RETURN, PRINT;
+terminal Integer    NUMBER;        // our scanner provides numbers as integers
+terminal Float      FLOAT;
+terminal Boolean    TRUE,FALSE;
+terminal String     ID;
+
+/* Non terminals */
+non terminal CNode      prog, stmt, stmtlist;
+non terminal Exp        expr;      // used to store evaluated subexpressions
+non terminal CType            type;
+non terminal ArrayList<Bind>  bindList;
+non terminal ArrayList<Bind> paramList;
+non terminal ArrayList<Exp>   argList, expList;
+non terminal Bind             bind;
+non terminal FunDef           fncDecl;
+non terminal CNode            block;
+non terminal ArrayList<FunDef> fnList;
+/*
+  Precencia e associatividade dos operadores.
+  Lista em ordem dos de menor prioridade para os de maior
+  prioridade.
+*/
+precedence left PLUS, MINUS;
+precedence left TIMES, DIV;
+
+/* The grammar rules */
+
+prog ::= fnList:fl                {: RESULT = new Program(0,0,fl);  :}
+       ;
+
+fnList ::=  fncDecl:fd fnList:fl  {: fl.add(fd); RESULT = fl;:}
+       |                          {: RESULT = new ArrayList<FunDef>(); :}
+       ;
+
+fncDecl ::= ID:fn LP paramList:l RP COLON type:t block:b  {: RESULT = new FunDef(fnleft,fnright, fn, l, t, b); :}
+         ;
+
+paramList ::= bindList:l {: RESULT = l;:}
+        |                {: RESULT =  new ArrayList<Bind>(); :}
+        ;
+
+bindList ::= bind:b  COMA bindList:bl {: bl.add(b); RESULT = bl;:}
+          |  bind:b                  {: ArrayList<Bind> arr = new ArrayList<Bind>();
+                                        arr.add(b);
+                                        RESULT = arr; :}
+          ;
+
+bind ::= type:ty COLON:t ID:v {: RESULT = new Bind(tleft,tright,ty,new Var(vleft, vright, v)); :}
+     ;
+
+type ::= TYINT:s {:RESULT = new TyInt(sleft,sright);   :}
+       | TYFLOAT:s {:RESULT = new TyFloat(sleft,sright); :}
+       | TYBOOL:s {:RESULT = new TyBool(sleft,sright);  :}
+       ;
+
+
+block ::= OB stmtlist:sl CB  {: RESULT = sl; :}
+       ;
+
+stmtlist ::=  stmt:s stmtlist:st   {: RESULT = new CSeq(sleft,sright,s,st);  :}
+          |   stmt:s               {: RESULT = s;  :}
+          ;
+
+stmt ::= ID:v ATTR:a expr:e SEMI   {: Var varNode =  new Var(vleft,vright,v);
+                                      RESULT = new CAttr(aleft,aright,varNode,e); :}
+       | PRINT:t expr:e SEMI       {: RESULT = new Print(tleft,tright, e); :}
+       | INTER:t OSB expr:e CSB OB stmtlist:l CB {: RESULT = new Loop(tleft,tright, e,l); :}
+       | INTER:t LP expr:e RP block:b            {: RESULT = new If(tleft,tright,e,b,null); :}
+       | INTER:t LP expr:e RP block:bi COLON block:be {: RESULT = new If(tleft,tright,e,bi,be); :}
+       | RETURN:r expr:e  SEMI              {: RESULT = new Return(rleft,rright,e); :}
+       ;
+
+
+
+expList ::= expr:e COMA argList:l {: l.add(e); RESULT = l;:}
+         |  expr:e                {: ArrayList<Exp> arg = new ArrayList<Exp>();
+                                     arg.add(e);
+                                     RESULT = arg; :}
+         ;
+
+argList ::= expList:el      {: RESULT = el; :}
+         |                  {: RESULT = new ArrayList<Exp>(); :}
+         ;
+
+expr  ::= expr:e1 PLUS:t expr:e2      {: RESULT = new Plus(tleft,tright,e1,e2);    :}
+       | expr:e1 TIMES:t expr:e2      {: RESULT = new Times(tleft,tright,e1,e2);   :}
+       | LP expr:e RP                 {: RESULT = e;                               :}
+       | NUMBER:n	                  {: RESULT = new IntLit(nleft,nright,n);      :}
+       | FLOAT:n	                  {: RESULT = new FloatLit(nleft,nright,n);      :}
+       | TRUE:n	                      {: RESULT = new BoolLit(nleft,nright,n);      :}
+       | FALSE:n	                  {: RESULT = new BoolLit(nleft,nright,n);      :}
+       | ID:v LP argList:l RP         {: RESULT = new FCall(vleft,vright,v,l);     :}
+       | ID:v                         {: RESULT = new Var(vleft,vright,v);         :}
+       ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

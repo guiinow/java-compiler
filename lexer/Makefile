@@ -8,11 +8,11 @@ CUP = ../tools/java-cup-11b.jar
 
 # Arquivos do analisador léxico
 LEXER_SRC = lang_lexer.flex
-LEXER_GEN = Lang_lexer.java
+LEXER_GEN = LangLexer.java
 
 # Arquivos do analisador sintático
 PARSER_SRC = ../parser/lang.cup
-PARSER_GEN = ../parser/sym.java ../parser/parser.java
+PARSER_GEN = ../parser/LangParserSym.java ../parser/LangParser.java
 
 # Arquivos Java principais
 JAVA_FILES = Main.java $(LEXER_GEN) $(PARSER_GEN)
@@ -21,23 +21,19 @@ JAVA_FILES = Main.java $(LEXER_GEN) $(PARSER_GEN)
 INPUT_FILE = teste.txt  
 
 # Regra padrão
-all: lexer parser compile run
+all: lexer parser compile
 
 # Geração do analisador léxico
 lexer:
-	java -jar $(JFLEX) $(LEXER_SRC)
-
+	java -jar $(JFLEX) -d ../parser $(LEXER_SRC)
+	
 # Geração do analisador sintático
 parser:
-	java -jar $(CUP) $(PARSER_SRC)
+	java -jar $(CUP) -destdir ../parser $(PARSER_SRC)
 
 # Compilação
 compile: $(LEXER_GEN) $(PARSER_GEN)
 	javac $(JAVA_FILES)
-
-# Execução
-run:
-	java Main $(INPUT_FILE)
 
 # Limpeza
 clean:
