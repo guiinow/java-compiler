@@ -95,3 +95,11 @@ Este projeto implementa a **AST (Abstract Syntax Tree)** da linguagem Lang, estr
    ```  
 
 O programa exibe no terminal a estrutura da AST gerada a partir do código definido em **AST.java**.
+o Mafefile que se deve usar é o no diretório raíz
+
+falta:
+terminar a implementação do analisador sintatico (parser) (.cup) (gramatica)
+implementar a ast (e.g  linha 120 calc.cup)
+fazer com que o analisador sintatico construa a ast 
+implementar o interpretador por meio de visitor
+
