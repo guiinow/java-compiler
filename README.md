@@ -75,3 +75,23 @@ Token: (4,0) TK: EOF
 
 ---
 ## Neste parte serão feitas as documentações acerca do Parser e Interpreter
+
+# **Árvore Sintática Abstrata (AST) para a Linguagem Lang**  
+
+Este projeto implementa a **AST (Abstract Syntax Tree)** da linguagem Lang, estruturando o código-fonte e representando a sintaxe da linguagem.  
+
+## **Como Rodar**  
+
+1. **Acesse o diretório do parser**  
+
+2. **Compile e execute a AST:**  
+   ```bash
+   make AST
+   ```
+
+3. **Limpe os arquivos gerados:**  
+   ```bash
+   make clean
+   ```  
+
+O programa exibe no terminal a estrutura da AST gerada a partir do código definido em **AST.java**.
