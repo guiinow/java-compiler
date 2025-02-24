@@ -92,7 +92,7 @@ comment       = "{-" ~"-}"
 
     /* Identifiers and literals */
  //   {identifier}      { return new Symbol(LangParserSym.IDENTIFIER, yyline + 1, yycolumn + 1, yytext()); }
-    {integer}         { return new Symbol(LangParserSym.INT_LITERAL, yyline + 1, yycolumn + 1, toInt(yytext())); }
+      {integer}         { return new Symbol(LangParserSym.INT_LITERAL, yyline + 1, yycolumn + 1, toInt(yytext())); }
  //   {float}           { return new Symbol(LangParserSym.FLOAT_LITERAL, yyline + 1, yycolumn + 1, toFloat(yytext())); }
  //   {ascII}           { return new Symbol(LangParserSym.ASCII, yyline + 1, yycolumn + 1, ascIIToChar(yytext())); }
 

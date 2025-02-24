@@ -1,13 +1,16 @@
-// Definição da classe base para todos os nós da AST
+import java.util.List;
+import java.util.Arrays;
+
+// Classe base para todos os nós da AST
 abstract class Node {
     public abstract void print();
 }
 
-// Nó para representar um número inteiro
-class NumberNode extends Node {
-    private int value;
+// Nó para representar números inteiros, floats e caracteres
+class LiteralNode extends Node {
+    private Object value;
 
-    public NumberNode(int value) {
+    public LiteralNode(Object value) {
         this.value = value;
     }
 
@@ -17,16 +20,12 @@ class NumberNode extends Node {
     }
 }
 
-// Nó para representar um identificador
+// Nó para representar identificadores (variáveis e funções)
 class IdentifierNode extends Node {
     private String name;
 
     public IdentifierNode(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -35,7 +34,21 @@ class IdentifierNode extends Node {
     }
 }
 
-// Nó para operações matemáticas (+, -, *, /)
+// Nó para representar tipos (Int, Float, Bool, Char, TYID)
+class TypeNode extends Node {
+    private String typeName;
+
+    public TypeNode(String typeName) {
+        this.typeName = typeName;
+    }
+
+    @Override
+    public void print() {
+        System.out.print(typeName);
+    }
+}
+
+// Nó para operações binárias (+, -, *, /, %, &&, ||, <, >, ==, !=)
 class BinaryOperationNode extends Node {
     private Node left, right;
     private String operator;
@@ -56,7 +69,7 @@ class BinaryOperationNode extends Node {
     }
 }
 
-// Nó para atribuição de variável (exemplo: x = 5 + 10)
+// Nó para atribuição de variável
 class AssignmentNode extends Node {
     private IdentifierNode variable;
     private Node expression;
@@ -68,41 +81,42 @@ class AssignmentNode extends Node {
 
     @Override
     public void print() {
-        System.out.print(variable.getName() + " = ");
+        variable.print();
+        System.out.print(" = ");
         expression.print();
         System.out.println(";");
     }
 }
 
-// Nó para operações booleanas (==, !=, &&, ||, <, <=, >, >=)
-class BooleanOperationNode extends Node {
-    private Node left, right;
-    private String operator;
+// Nó para declarações de variável
+class DeclarationNode extends Node {
+    private TypeNode type;
+    private IdentifierNode variable;
 
-    public BooleanOperationNode(Node left, String operator, Node right) {
-        this.left = left;
-        this.operator = operator;
-        this.right = right;
+    public DeclarationNode(TypeNode type, IdentifierNode variable) {
+        this.type = type;
+        this.variable = variable;
     }
 
     @Override
     public void print() {
-        System.out.print("(");
-        left.print();
-        System.out.print(" " + operator + " ");
-        right.print();
-        System.out.print(")");
+        type.print();
+        System.out.print(" ");
+        variable.print();
+        System.out.println(";");
     }
 }
 
-// Nó para estrutura de controle IF
+// Nó para estrutura de controle IF-ELSE
 class IfNode extends Node {
     private Node condition;
-    private Node body;
+    private Node thenBlock;
+    private Node elseBlock;
 
-    public IfNode(Node condition, Node body) {
+    public IfNode(Node condition, Node thenBlock, Node elseBlock) {
         this.condition = condition;
-        this.body = body;
+        this.thenBlock = thenBlock;
+        this.elseBlock = elseBlock;
     }
 
     @Override
@@ -110,12 +124,17 @@ class IfNode extends Node {
         System.out.print("if ");
         condition.print();
         System.out.println(" {");
-        body.print();
+        thenBlock.print();
         System.out.println("}");
+        if (elseBlock != null) {
+            System.out.println("else {");
+            elseBlock.print();
+            System.out.println("}");
+        }
     }
 }
 
-// Nó para estrutura de repetição WHILE
+// Nó para estrutura de repetição WHILE (iterate)
 class WhileNode extends Node {
     private Node condition;
     private Node body;
@@ -135,7 +154,7 @@ class WhileNode extends Node {
     }
 }
 
-// Nó para print
+// Nó para o comando PRINT
 class PrintNode extends Node {
     private Node expression;
 
@@ -151,46 +170,100 @@ class PrintNode extends Node {
     }
 }
 
+// Nó para retornos de função
+class ReturnNode extends Node {
+    private Node expression;
+
+    public ReturnNode(Node expression) {
+        this.expression = expression;
+    }
+
+    @Override
+    public void print() {
+        System.out.print("return ");
+        expression.print();
+        System.out.println(";");
+    }
+}
+
 // Nó para blocos de código
 class BlockNode extends Node {
-    private Node[] statements;
+    private List<Node> statements;
 
-    public BlockNode(Node... statements) {
+    public BlockNode(List<Node> statements) {
         this.statements = statements;
     }
 
     @Override
     public void print() {
+        System.out.println("{");
         for (Node stmt : statements) {
             stmt.print();
         }
+        System.out.println("}");
+    }
+}
+
+// Nó para funções
+class FunctionNode extends Node {
+    private TypeNode returnType;
+    private IdentifierNode name;
+    private List<IdentifierNode> parameters;
+    private BlockNode body;
+
+    public FunctionNode(TypeNode returnType, IdentifierNode name, List<IdentifierNode> parameters, BlockNode body) {
+        this.returnType = returnType;
+        this.name = name;
+        this.parameters = parameters;
+        this.body = body;
+    }
+
+    @Override
+    public void print() {
+        returnType.print();
+        System.out.print(" ");
+        name.print();
+        System.out.print("(");
+        for (int i = 0; i < parameters.size(); i++) {
+            parameters.get(i).print();
+            if (i < parameters.size() - 1) System.out.print(", ");
+        }
+        System.out.println(") {");
+        body.print();
+        System.out.println("}");
+    }
+}
+
+// Nó para chamadas de função
+class FunctionCallNode extends Node {
+    private IdentifierNode functionName;
+    private List<Node> arguments;
+
+    public FunctionCallNode(IdentifierNode functionName, List<Node> arguments) {
+        this.functionName = functionName;
+        this.arguments = arguments;
+    }
+
+    @Override
+    public void print() {
+        functionName.print();
+        System.out.print("(");
+        for (int i = 0; i < arguments.size(); i++) {
+            arguments.get(i).print();
+            if (i < arguments.size() - 1) System.out.print(", ");
+        }
+        System.out.println(");");
     }
 }
 
 // Classe principal para testar a AST
 public class AST {
     public static void main(String[] args) {
-        // Criando a AST para a expressão: x = (5 + 10) * 2;
-        Node expr = new BinaryOperationNode(
-            new BinaryOperationNode(new NumberNode(5), "+", new NumberNode(10)),
-            "*",
-            new NumberNode(2)
-        );
+        Node decl = new DeclarationNode(new TypeNode("Int"), new IdentifierNode("x"));
+        Node assign = new AssignmentNode(new IdentifierNode("x"), new BinaryOperationNode(new LiteralNode(5), "+", new LiteralNode(10)));
+        Node print = new PrintNode(new IdentifierNode("x"));
 
-        Node assignment = new AssignmentNode(new IdentifierNode("x"), expr);
-
-        // Criando um IF: if (x > 0) { x = x - 1; }
-        Node condition = new BooleanOperationNode(new IdentifierNode("x"), ">", new NumberNode(0));
-        Node ifBody = new AssignmentNode(new IdentifierNode("x"), new BinaryOperationNode(new IdentifierNode("x"), "-", new NumberNode(1)));
-        Node ifStatement = new IfNode(condition, ifBody);
-
-        // Criando um WHILE: while (x > 0) { x = x - 1; }
-        Node whileStatement = new WhileNode(condition, ifBody);
-
-        // Criando um bloco de código com todas as instruções
-        Node program = new BlockNode(assignment, ifStatement, whileStatement);
-
-        // Exibir a AST formatada
+        BlockNode program = new BlockNode(Arrays.asList(decl, assign, print));
         program.print();
     }
 }
