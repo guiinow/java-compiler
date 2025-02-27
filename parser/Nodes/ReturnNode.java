@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class ReturnNode extends Node {
     private Node expression;

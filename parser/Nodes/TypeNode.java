@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class TypeNode extends Node {
     private String typeName;

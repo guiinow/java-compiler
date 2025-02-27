@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class AssignmentNode extends Node {
     private IdentifierNode variable;

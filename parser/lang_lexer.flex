@@ -101,20 +101,20 @@ comment       = "{-" ~"-}"
 
     /* Operators and punctuation */
     "+"              { return new Symbol(LangParserSym.PLUS, yyline + 1, yycolumn + 1); }
-/*  "=="             { return new Symbol(LangParserSym.EQUAL, yyline + 1, yycolumn + 1); }
-    "!="             { return new Symbol(LangParserSym.DIFFERENT, yyline + 1, yycolumn + 1); }
-    "="              { return new Symbol(LangParserSym.ASSIGN, yyline + 1, yycolumn + 1); }
-    "<"              { return new Symbol(LangParserSym.LESS, yyline + 1, yycolumn + 1); }
-    ">"              { return new Symbol(LangParserSym.GREATER, yyline + 1, yycolumn + 1); }
-    "-"              { return new Symbol(LangParserSym.MINUS, yyline + 1, yycolumn + 1); }
-    "("              { return new Symbol(LangParserSym.OPEN_PARENTHESIS, yyline + 1, yycolumn + 1); }
-    ")"              { return new Symbol(LangParserSym.CLOSE_PARENTHESIS, yyline + 1, yycolumn + 1); }
-    "["              { return new Symbol(LangParserSym.OPEN_BRACKETS, yyline + 1, yycolumn + 1); }
-    "]"              { return new Symbol(LangParserSym.CLOSE_BRACKETS, yyline + 1, yycolumn + 1); }
-    "{"              { return new Symbol(LangParserSym.OPEN_BRACES, yyline + 1, yycolumn + 1); }
-    "}"              { return new Symbol(LangParserSym.CLOSE_BRACES, yyline + 1, yycolumn + 1); }
-    "\""            { return new Symbol(LangParserSym.QUOTATION_MARKS, yyline + 1, yycolumn + 1); }
-*/
+//    "-"              { return new Symbol(LangParserSym.MINUS, yyline + 1, yycolumn + 1); }
+//  "=="             { return new Symbol(LangParserSym.EQUAL, yyline + 1, yycolumn + 1); }
+//    "!="             { return new Symbol(LangParserSym.DIFFERENT, yyline + 1, yycolumn + 1); }
+//    "="              { return new Symbol(LangParserSym.ASSIGN, yyline + 1, yycolumn + 1); }
+//    "<"              { return new Symbol(LangParserSym.LESS, yyline + 1, yycolumn + 1); }
+//    ">"              { return new Symbol(LangParserSym.GREATER, yyline + 1, yycolumn + 1); }
+//    "("              { return new Symbol(LangParserSym.OPEN_PARENTHESIS, yyline + 1, yycolumn + 1); }
+//    ")"              { return new Symbol(LangParserSym.CLOSE_PARENTHESIS, yyline + 1, yycolumn + 1); }
+//    "["              { return new Symbol(LangParserSym.OPEN_BRACKETS, yyline + 1, yycolumn + 1); }
+//    "]"              { return new Symbol(LangParserSym.CLOSE_BRACKETS, yyline + 1, yycolumn + 1); }
+//    "{"              { return new Symbol(LangParserSym.OPEN_BRACES, yyline + 1, yycolumn + 1); }
+//    "}"              { return new Symbol(LangParserSym.CLOSE_BRACES, yyline + 1, yycolumn + 1); }
+//    "\""            { return new Symbol(LangParserSym.QUOTATION_MARKS, yyline + 1, yycolumn + 1); }
+
     /* Error handling for illegal characters */
     [^]              { throw new Error("Illegal character <" + yytext() + "> at line " + yyline + ", column " + yycolumn); }
 }

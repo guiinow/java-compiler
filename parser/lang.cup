@@ -1,4 +1,5 @@
 package parser;
+import parser.nodes.*;
 
 class LangParser;
 parser code {:
@@ -12,7 +13,8 @@ init with {:               :};
 scan with {: return s.nextToken(); :};
 
 // Declaração dos terminais
-terminal INT_LITERAL, TRUE, FALSE, PLUS; //Char, Bool, Float, TYID, ID, INT, FLOAT, CHAR
+terminal Integer INT_LITERAL;
+terminal TRUE, FALSE, PLUS, MINUS; //Char, Bool, Float, TYID, ID, INT, FLOAT, CHAR
 //terminal LBRACE, RBRACE, LPAREN, RPAREN, LBRACK, RBRACK;
 //terminal COLONCOLON, EQUALS, AND, LT, EQ, NEQ, PLUS, MINUS, STAR, SLASH, PERCENT, NOT;
 //terminal IF, ELSE, ITERATE, READ, PRINT, RETURN, NEW, NULL, TRUE, FALSE;
@@ -20,11 +22,13 @@ terminal INT_LITERAL, TRUE, FALSE, PLUS; //Char, Bool, Float, TYID, ID, INT, FLO
 // Declaração dos não terminais
 non terminal exp;
 
-precedence left PLUS;
-exp ::= INT_LITERAL 
+precedence left PLUS, MINUS;
+
+exp ::= INT_LITERAL:l {: RESULT = new LiteralNode(l);:}
     | TRUE
     | FALSE
     | exp PLUS exp  
+    | exp MINUS exp
     ;
 
 

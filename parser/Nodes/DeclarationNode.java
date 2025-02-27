@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class DeclarationNode extends Node {
     private TypeNode type;

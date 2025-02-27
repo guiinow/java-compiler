@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class IfNode extends Node {
     private Node condition;

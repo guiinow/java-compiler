@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class BinaryOperationNode extends Node {
     private Node left, right;

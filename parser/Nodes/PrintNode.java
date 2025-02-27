@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class PrintNode extends Node {
     private Node expression;

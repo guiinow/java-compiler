@@ -1,4 +1,4 @@
-package nodes;
+package parser.nodes;
 
 public class LiteralNode extends Node {
     private Object value;

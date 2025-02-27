@@ -12,6 +12,7 @@ public class LangParserSym {
   public static final int PLUS = 5;
   public static final int TRUE = 3;
   public static final int INT_LITERAL = 2;
+  public static final int MINUS = 6;
   public static final int FALSE = 4;
   public static final int EOF = 0;
   public static final String[] terminalNames = new String[] {
@@ -20,7 +21,8 @@ public class LangParserSym {
   "INT_LITERAL",
   "TRUE",
   "FALSE",
-  "PLUS"
+  "PLUS",
+  "MINUS"
   };
 }
 
