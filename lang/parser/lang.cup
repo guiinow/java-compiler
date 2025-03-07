@@ -4,12 +4,16 @@ package lang.parser;
 
 import java_cup.runtime.*;
 import lang.ast.*;
-//import lang.ast.decl.*;
 import lang.ast.command.*;
 import lang.ast.expr.*;
 import lang.ast.types.*;
+import lang.ast.decl.*;
+import lang.ast.reserved.*;
+import lang.ast.delimiters.*;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.Arrays;
+import java.lang.*;
 
 class LangParser;
 parser code {:
@@ -24,68 +28,205 @@ scan with {: return s.nextToken(); :};
 
 /* define how to connect to the scanner! */
 
-terminal PLUS, MINUS, TIMES, DIVIDE, MOD;
-terminal EQUAL, DIFFERENT, LESS, GREATER;
-terminal AND, NOT, DOUBLE_COLON, ASSIGN;
-terminal OPEN_PARENTHESIS, CLOSE_PARENTHESIS, OPEN_BRACES, CLOSE_BRACES;
-terminal SEMICOLON, COMMA, COLON, DOT, QUOTATION_MARKS;
-terminal Integer INT;
-terminal Float FLOAT;
-terminal String ID, CHAR;
-terminal Boolean BOOL, TRUE, FALSE, NULL;
-terminal IDENTIFIER, TYPE_ID;
-terminal ESCAPE, ASCII;
-terminal ARR;
+/*
+   Terminais
+*/
 
-/* Non-terminais */
-non terminal Prog prog;
-non terminal Exp expr;
-non terminal Type type;
-non terminal Cmd cmd;
-non terminal StmtBlock stmtBlock;
-non terminal LoopCond loopCond;
-non terminal Params params;
-non terminal Decl decl;
+// Simbolos
+terminal LBRACE, RBRACE; // { e }
+terminal LPAREN, RPAREN; // ( e )
+terminal LBRACKET, RBRACKET; // [ e ]
+terminal COMMA;         // ,
+terminal SEMICOLON;     // ;
+terminal COLON;         // :
+terminal DOUBLE_COLON;  // ::
+terminal DOT;           // .
+terminal ATBR;        // =
 
-/* Precedência e associatividade dos operadores */
-precedence left OR;
-precedence left AND;
-precedence left EQUAL, DIFFERENT, DOUBLE_EQUAL;
-precedence left LESS, GREATER;
-precedence left PLUS, MINUS;
-precedence left TIMES, DIVIDE, MOD;
-precedence right NOT;
+// Operadores aritméticos
+terminal PLUS, SUB;   // + e -
+terminal MULT, DIV, MOD; // *, / e %
+
+// Operadores de comparação
+terminal EQ, NEQ;       // == e !=
+terminal LT, GT;        // < e >
+
+// Operadores lógicos
+terminal AND;       // && 
+terminal NOT;       // !
+
+terminal Integer INT_LITERAL;        // our scanner provides numbers as integers
+terminal Float FLOAT_LITERAL;
+terminal Character CHAR_LITERAL;
+terminal Boolean TRUE,FALSE;
+terminal Object NULL;
+terminal String ID;
+terminal String TYID;
+
+// Palavras reservadas
+terminal DATA;
+terminal INT_TYPE;      // Tipo Int
+terminal CHAR_TYPE;     // Tipo Char
+terminal BOOL_TYPE;     // Tipo Bool
+terminal FLOAT_TYPE;    // Tipo Float
+terminal IF;            // if
+terminal ELSE;          // else
+terminal ITERATE;       // iterate
+terminal READ;          // read
+terminal RETURN;        // return
+terminal PRINT;         // print
 
 /* Non terminals */
-non terminal Exp expr;
-non terminal Exp prog;
+non terminal Program prog;
+non terminal Data data;
+non terminal List<Data> dataList;
+non terminal FunDef func;
+non terminal List<FunDef> funcList;
+non terminal Decl decl;
+non terminal List<Decl> declList;
+non terminal Type type;
+non terminal Type btype;
+non terminal Block block;           // Corpo de função (bloco de comandos)
+non terminal StmtBlock stmtBlock;
+non terminal List<Cmd> cmdList;     // Lista de comandos dentro de um bloco
+non terminal Cmd cmd;  
+non terminal List<Param> paramList; // Lista de parâmetros
+non terminal List<Type> typeList; // Lista de tipos
+non terminal LValue lvalue;
+non terminal List<LValue> lvalueList; // Lista de lvalue
+non terminal List<Exp> expList;     // Lista de expressões
+//non terminal LoopCond loopCond;     // Condição de repetição em loops
+non terminal Exp exp;
+non terminal Exp rexp;
+non terminal Exp aexp;
+non terminal Exp mexp;
+non terminal Exp sexp;
+non terminal Exp pexp;
+
+/*
+  Precencia e associatividade dos operadores.
+  Lista em ordem dos de menor prioridade para os de maior
+  prioridade.
+*/
+
+precedence left AND;
+precedence left EQ, NEQ;
+precedence nonassoc GT, LT;
+precedence left PLUS, SUB;
+precedence left MULT, DIV, MOD;
+precedence right NOT, SUB;
+precedence left LBRACKET, RBRACKET, LPAREN, RPAREN;
 
 /* The grammar rules */
 
-prog ::= expr:e {: RESULT = e; :} 
-       ;
+prog ::= dataList:d funcList:f {: RESULT = new Program(dleft,dright,d,f); :};
 
-expr  ::= expr:e1 PLUS:s expr:e2 {: RESULT = new Plus(sleft, sright, e1, e2); :}
-       |  expr:e1 TIMES:s expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
-       |  expr:e1 MINUS:s expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
-       |  expr:e1 DIVIDE:s expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
-       |  expr:e1 MOD:s expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
-       |  expr:e1 EQUAL:s expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
-       |  expr:e1 DIFFERENT:s expr:e2 {: RESULT = new Different(sleft, sright, e1, e2); :}
-       |  expr:e1 LESS:s expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
-       |  expr:e1 GREATER:s expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
+dataList ::= dataList:dl data:d {: dl.add(d); RESULT = dl; :}
+       |  {: RESULT = new ArrayList<Data>(); :};
 
-       /*(???) DÚVIDA: As seguintes instâncias foram criadas extendendo Exp, está correto ou devo criar uma nova superclasse como Div extends BinOp ?*/
-       |  expr:e1 AND:n expr:e2 {: RESULT = new And(nleft, nright, e1, e2); :}
-       |  NOT:n expr:e1 {: RESULT = new Not(nleft, nright, e1); :}
-       /* ???????????????????? */
+funcList ::= funcList:fl func:f {: fl.add(f); RESULT = fl; :}
+       |  {: RESULT = new ArrayList<FunDef>(); :};
+
+data ::= DATA:dt TYID:ty LBRACE declList:del RBRACE {: RESULT = new Data(dtleft,dtright,ty,del); :};
+
+func ::= ID:i LPAREN paramList:params RPAREN COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, params, tl, b); :}
+       |  ID:i LPAREN paramList:params RPAREN block:b {: RESULT = new FunDef(ileft, iright, i, params, null, b); :}
+       |  ID:i LPAREN RPAREN COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, null, tl, b); :}
+       |  ID:i LPAREN RPAREN block:b {: RESULT = new FunDef(ileft, iright, i, null, null, b); :};
+
+declList ::= declList:dl decl:d {: dl.add(d); RESULT = dl; :}
+       |  {: RESULT = new ArrayList<Decl>(); :};
+
+decl ::= ID:i DOUBLE_COLON type:ty SEMICOLON {: RESULT = new Decl(ileft,iright,i,ty); :};
+
+typeList ::= typeList:tl COMMA type:t {: tl.add(t); RESULT = tl; :}
+       |  type:t {: List<Type> l = new ArrayList<Type>(); l.add(t); RESULT = l; :};
+
+type ::= type LBRACKET RBRACKET
+       | btype:b {: RESULT = b; :};
+
+btype ::= INT_TYPE:it {: RESULT = new TyInt(itleft, itright); :}
+       | CHAR_TYPE:ct {: RESULT = new TyChar(ctleft, ctright); :}
+       | BOOL_TYPE:bt {: RESULT = new TyBool(btleft, btright); :}
+       | FLOAT_TYPE:ft {: RESULT = new TyFloat(ftleft, ftright); :}
+       | TYID:ty {: RESULT = new TyId(tyleft, tyright, ty); :};
+
+block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft,clright,cl); :};
+
+stmtBlock ::= block:bk {: RESULT = new StmtBlock(bkleft,bkright,bk.getCommands()); :}
+       | cmd:c {: RESULT = new StmtBlock(cleft,cright,Arrays.asList(c)); :};
+
+cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
+       | {: RESULT = new ArrayList<Cmd>(); :};
+
+cmd ::=  IF:i LPAREN exp:e RPAREN stmtBlock:sb {: RESULT = new If(ileft,iright, e, sb); :}
+       | IF:i LPAREN exp:e RPAREN stmtBlock:sbt ELSE stmtBlock:sbf  {: RESULT = new IfElse(ileft,iright, e, sbt, sbf); :}
+//     | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock {: RESULT = new IterateCmd(itleft,itright); :}
+       | READ:r lvalue:lv SEMICOLON {: RESULT = new ReadCmd(rleft,rright, lv); :}
+       | PRINT:p exp:e SEMICOLON {: RESULT = new PrintCmd(pleft,pright, e); :}
+       | RETURN:r exp:e expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, e, exps); :}
+       | lvalue:lv ATBR exp:e SEMICOLON {: RESULT = new Cmd(lvleft,lvright); :}; // FALTA O ULTIMO CMD
+
+// lvalueList ::=  lvalue:lv {: List<LValue> list = new ArrayList<LValue>(); list.add(lv); RESULT = list; :}
+//             | lvalue_list:lvl COMMA lvalue:lv {: lvl.add(lv); RESULT = lvl; :};
+
+lvalue ::= ID:id {: RESULT = new LValue(idleft, idright, id); :}
+         | lvalue:lv LBRACKET exp:e RBRACKET {: RESULT = new ArrayAccess(lvleft, lvright, lv, e); :}
+         | lvalue:lv DOT ID:id {: RESULT = new FieldAccess(lvleft, lvright, lv, id); :};
+
+paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(ileft, iright, i, t)); RESULT = pl; :}
+           | ID:i DOUBLE_COLON type:t {: List<Param> p = new ArrayList<>(); p.add(new Param(ileft, iright, i, t)); RESULT = p; :}
+           | {: RESULT = new ArrayList<Param>(); :};
+
+//block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft, clright, cl); :};
+
+//cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
+//          | {: RESULT = new ArrayList<Cmd>(); :};
+
+//cmd ::= IF LPAREN exp:e RPAREN cmd:c {: RESULT = new If(ifleft, ifright, e, c); :}
+//     | IF LPAREN exp:e RPAREN cmd:c1 ELSE cmd:c2 {: RESULT = new IfElse(ifleft, ifright, e, c1, c2); :}
+//     | ITERATE LPAREN exp:e RPAREN cmd:c {: RESULT = new IterateCmd(iterateleft, iterateright, e, c); :}
+//     | READ lvalue:l SEMICOLON {: RESULT = new ReadCmd(readleft, readright, l); :}
+//     | PRINT exp:e SEMICOLON {: RESULT = new PrintCmd(printleft, printright, e); :}
+//     | RETURN expList:el SEMICOLON {: RESULT = new ReturnCmd(returnleft, returnright, el); :}
+//     | lvalue:l ATBR exp:e SEMICOLON {: RESULT = new AssignCmd(atbrleft, atbrright, l, e); :}
+//     | ID:i LPAREN expList:el RPAREN SEMICOLON {: RESULT = new FuncCall(i, el); :};
+
+//expList ::= expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
+//          | exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
+
+//loopCond ::= ID:i COLON exp:e {: RESULT = new NamedLoopCond(ileft, iright, i, e); :}
+//           | exp:e {: RESULT = new LoopCond(eleft, eright, e); :};
+
+
+exp  ::= exp:e1 AND:an exp:e2 {: RESULT = new AndOperator(anleft,anright,e1,e2); :}
+       | rexp:r {: RESULT = r; :};
+
+rexp ::=  aexp:e1 GT:gt aexp:e2 {: RESULT = new GtOperator(gtleft,gtright,e1,e2); :}
+       |  aexp:e1 LT:lt aexp:e2 {: RESULT = new LtOperator(ltleft,ltright,e1,e2); :}
+       |  rexp:e1 EQ:eq aexp:e2 {: RESULT = new EqOperator(eqleft,eqright,e1,e2); :}
+       |  rexp:e1 NEQ:neq aexp:e2 {: RESULT = new NeqOperator(neqleft,neqright,e1,e2); :}
+       |  aexp:a {: RESULT = a; :};
+
+aexp  ::= aexp:e1 PLUS:p mexp:e2 {: RESULT = new PlusOperator(pleft,pright,e1,e2); :}
+       |  aexp:e1 SUB:u mexp:e2 {: RESULT = new MinusOperator(uleft,uright,e1,e2); :}
+       |  mexp:m {: RESULT = m; :};
+
+mexp ::=  mexp:e1 MULT:s sexp:e2 {: RESULT = new MultOperator(sleft,sright,e1,e2); :}
+       |  mexp:e1 DIV:d sexp:e2 {: RESULT = new DivOperator(dleft,dright,e1,e2); :}
+       |  mexp:e1 MOD:m sexp:e2 {: RESULT = new ModOperator(mleft,mright,e1,e2); :}
+       |  sexp:s {: RESULT = s; :};
+
+sexp ::=  NOT:no sexp:e1 {: RESULT = new NotOperator(noleft,noright,e1); :}
+       |  SUB:u sexp:e1 {: RESULT = new UnaryMinusOperator(uleft,uright,e1); :}
+       |  TRUE:t {: RESULT = new BoolLit(tleft,tright,true); :}
+       |  FALSE:f {: RESULT = new BoolLit(fleft,fright,false); :}
+       |  NULL:n {: RESULT = new NullLit(nleft,nright,null); :}
+       |  INT_LITERAL:n {: RESULT = new IntLit(nleft,nright,n); :}
+       |  FLOAT_LITERAL:n {: RESULT = new FloatLit(nleft,nright,n); :}
+       |  CHAR_LITERAL:c {: RESULT = new CharLit(cleft,cright,c); :}
+       |  pexp:p {: RESULT = p; :};
+
+pexp ::=  LPAREN exp:e RPAREN {: RESULT = e; :}
+       |  LBRACKET exp:e RBRACKET {: RESULT = e; :};
        
-
-       |  LP expr:e RP {: RESULT = e; :} 
-       |  INT:n {: RESULT = new Int(nleft, nright, n); :}
-       |  FLOAT:n2 {: RESULT = new Float(n2left, n2right, n2); :} 
-       |  TRUE:t {: RESULT = new Bool(tleft, tright, t); :}
-       |  FALSE:f {: RESULT = new Bool(fleft, fright, f); :}
-       |  ID:i {: RESULT = new Var(ileft, iright, i); :}
-       ;
-

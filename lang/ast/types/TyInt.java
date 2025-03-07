@@ -1,15 +1,14 @@
 package lang.ast.types;
 
+import lang.ast.LVisitor;
 
-import lang.ast.NodeVisitor;
+public class TyInt extends Type {
+    public TyInt(int line, int col) {
+        super(line, col, "Int");
+    }
 
-
-
-public class TyInt extends LType {
-
-      public TyInt(int line, int col){
-          super(line,col);
-      }
-      public void accept(NodeVisitor v){v.visit(this);}
+    public void accept(LVisitor v) {
+        v.visit(this);
+    }
 
 }

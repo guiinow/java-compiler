@@ -1,17 +1,20 @@
 package lang.ast.expr;
 
-import lang.ast.NodeVisitor;
+import lang.ast.LVisitor;
 
-public class Var extends Exp{
+public class Var extends Exp {
+    private final String name;
 
-      private String name;
-      public Var(int line, int col, String name){
-           super(line,col);
-           this.name = name;
-      }
+    public Var(int line, int col, String name) {
+        super(line, col);
+        this.name = name;
+    }
 
-      public String getName(){ return name;}
+    public String getName() {
+        return name;
+    }
 
-      public void accept(NodeVisitor v){v.visit(this);}
-
+    public void accept(LVisitor v) {
+        v.visit(this);
+    }
 }

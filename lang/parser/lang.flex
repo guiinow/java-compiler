@@ -3,8 +3,8 @@
  * The students are encouraged to argue why this is a bad ideia !
 
 /* Lang lexer specification
- * Guilherme Lima 19.1.1276
- * Stephany xx.x.xxxx
+ * Guilherme Ferreira
+ * Breno Rotte
  */
 
 package lang.parser;
@@ -19,148 +19,137 @@ import java_cup.runtime.Symbol;
 %type Symbol
 %class LangLexer
 
+
 %line
 %column
 
 %unicode
 
 %eofval{
-    return new Symbol(LangParserSym.EOF, yyline + 1, yycolumn + 1);
+   return new Symbol(LangParserSym.EOF, yyline + 1, yycolumn + 1);
 %eofval}
 
-%state ARR
-
 %{
-    private ArrayList<Integer> arr;
+    private ArrayList arr;
 
-    private int toInt(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            System.out.println("Impossible error converting " + s + " to integer");
+    private int toInt(String s){
+        try{
+            return Integer.parseInt(yytext());
+        }catch(NumberFormatException e){
+            System.out.println("erro de conversao: " + s + " para inteiro");
             return 0;
         }
     }
 
-    private float toFloat(String s) {
-        try {
-            return Float.parseFloat(s);
-        } catch (NumberFormatException e) {
-            System.out.println("Impossible error converting " + s + " to float");
+    private float toFloat(String s){
+        try{
+            return Float.parseFloat(yytext());
+        }catch(NumberFormatException e){
+            System.out.println("erro de conversao:  " + s + " para ponto flutuante");
             return 0;
         }
     }
+
+    private char escapeToChar(String s) {
+        switch (s.charAt(2)) { // Pega o segundo caractere após a barra invertida
+            case 'n': return '\n';
+            case 't': return '\t';
+            case 'b': return '\b';
+            case 'r': return '\r';
+            case '\'': return '\'';
+            case '\"': return '\"';
+            case '\\': return '\\';
+            default: throw new Error("Caractere de escape inválido: " + s);
+        }
+    }
+
 
     private char ascIIToChar(String s) {
-        String octalValue = s.substring(2, s.length() - 1); 
+        String decimalValue = s.substring(2, s.length() - 1);
         try {
-            int decimalValue = Integer.parseInt(octalValue, 8);
-            return (char) decimalValue;
+            int decimal = Integer.parseInt(decimalValue);
+            return (char) decimal;
         } catch (NumberFormatException e) {
-            throw new Error("Erro ao converter o valor octal '" + s + "' em um caractere ASCII.");
+            throw new Error("Erro ao converter o valor inteiro '" + s + "' em um caractere ASCII.");
         }
-    }
+    }   
 
-    private Symbol mkSymbol(int symCode, Object obj) {
+    private Symbol mkSymbol(int symCode, Object obj){
         return new Symbol(symCode, yyline + 1, yycolumn + 1, obj);
     }
 
-    private Symbol mkSymbol(int symCode) {
-        return mkSymbol(symCode, null);
+    private Symbol mkSymbol(int symCode){
+        return mkSymbol(symCode,null);
     }
+
 %}
 
-/* Macro Definitions */
-identifier    = [a-z][a-zA-Z0-9_]*
-type_id       = [A-Z][a-zA-Z0-9_]*
-integer       = [0-9]+
-float         = [0-9]+\.[0-9]*|\.[0-9]+|[0-9]+\.
-whitespace    = [ \n\t\r]+ | {comment} 
-escape        = "'\\b'" | "'\\n'" | "'\\t'" | "'\\r'"
-ascII         = "'\\[0-9]{1,3}'"
-comment       = "{-" ~"-}"
+
+identifier = [a-z]+
+tyid = [A-Z][a-zA-Z0-9_]*
+integer = [0-9]+
+float = [0-9]*\.[0-9]+
+white =  [ \n\t\r]+
+char = "'" [^'\\] "'" 
+ascII = "'" \\[0-9]{3} "'" 
+escape = "'" \\[ntbr\\\\e'\"] "'"
 
 %%
+<YYINITIAL>{
 
-<YYINITIAL> {
-    /* Data types */
-    "Int"            { return mkSymbol(LangParserSym.INT); }
-    "Float"          { return mkSymbol(LangParserSym.FLOAT); }
-    "Char"           { return mkSymbol(LangParserSym.CHAR); }
-    "Bool"           { return mkSymbol(LangParserSym.BOOL); }
+// Tipos primitivos
+"Int"         { return mkSymbol(LangParserSym.INT_TYPE); }  // Tipo Int
+"Char"        { return mkSymbol(LangParserSym.CHAR_TYPE); } // Tipo Char
+"Bool"        { return mkSymbol(LangParserSym.BOOL_TYPE); } // Tipo Bool
+"Float"       { return mkSymbol(LangParserSym.FLOAT_TYPE); } // Tipo Float
 
-    /* Logical literals */
-    "true"           { return mkSymbol(LangParserSym.TRUE, true); }
-    "false"          { return mkSymbol(LangParserSym.FALSE, false); }
+"true"         { return mkSymbol(LangParserSym.TRUE, true);    }
+"false"        { return mkSymbol(LangParserSym.FALSE, false);  }
 
-    /* Comments (ignored) */
-    {comment}        { /* Ignore comments */ }
+"if"           { return mkSymbol(LangParserSym.IF);  }
+"else"         { return mkSymbol(LangParserSym.ELSE);  }
+"data"         { return mkSymbol(LangParserSym.DATA);  }
+"iterate"      { return mkSymbol(LangParserSym.ITERATE);  }
+"read"         { return mkSymbol(LangParserSym.READ);  }
+"print"        { return mkSymbol(LangParserSym.PRINT);  }
+"return"       { return mkSymbol(LangParserSym.RETURN);  }
+"null"         { return mkSymbol(LangParserSym.NULL, null);  }
 
-    /* Reserved words */
-    "if"             { return mkSymbol(LangParserSym.IF); }
-    "else"           { return mkSymbol(LangParserSym.ELSE); }
-    "data"           { return mkSymbol(LangParserSym.DATA); }
-    "null"           { return mkSymbol(LangParserSym.NULL); }
-    "iterate"        { return mkSymbol(LangParserSym.ITERATE); }
-    "read"           { return mkSymbol(LangParserSym.READ); }
-    "print"          { return mkSymbol(LangParserSym.PRINT); }
-    "return"         { return mkSymbol(LangParserSym.RETURN); }
+"+"            { return mkSymbol(LangParserSym.PLUS);  }
+"*"            { return mkSymbol(LangParserSym.MULT);  }
+"-"            { return mkSymbol(LangParserSym.SUB);  }
+"/"            { return mkSymbol(LangParserSym.DIV);  }
+"%"            { return mkSymbol(LangParserSym.MOD);  }
+">"            { return mkSymbol(LangParserSym.GT);  }
+"<"            { return mkSymbol(LangParserSym.LT);  }
+"=="           { return mkSymbol(LangParserSym.EQ);  }
+"!="           { return mkSymbol(LangParserSym.NEQ);  }
+"&&"           { return mkSymbol(LangParserSym.AND);  }
+"!"            { return mkSymbol(LangParserSym.NOT);  }
+"("            { return mkSymbol(LangParserSym.LPAREN);  }
+")"            { return mkSymbol(LangParserSym.RPAREN);  }
+"["            { return mkSymbol(LangParserSym.LBRACKET);  }
+"]"            { return mkSymbol(LangParserSym.RBRACKET);  }
+"{"            { return mkSymbol(LangParserSym.LBRACE);  }
+"}"            { return mkSymbol(LangParserSym.RBRACE);  }
+"::"           { return mkSymbol(LangParserSym.DOUBLE_COLON);  }
+";"            { return mkSymbol(LangParserSym.SEMICOLON);  }
+":"            { return mkSymbol(LangParserSym.COLON);  }
+"."            { return mkSymbol(LangParserSym.DOT);  }
+","            { return mkSymbol(LangParserSym.COMMA);  }
+"="            { return mkSymbol(LangParserSym.ATBR);  }
 
-    /* Operators */
-    "=="             { return mkSymbol(LangParserSym.EQUAL); }
-    "!="             { return mkSymbol(LangParserSym.DIFFERENT); }
-    "<="             { return mkSymbol(LangParserSym.LESS_EQUAL); }
-    ">="             { return mkSymbol(LangParserSym.GREATER_EQUAL); }
-    "&&"             { return mkSymbol(LangParserSym.AND); }
-    "::"             { return mkSymbol(LangParserSym.DOUBLE_COLON); }
-    "="              { return mkSymbol(LangParserSym.ASSIGN); }
-    "<"              { return mkSymbol(LangParserSym.LESS); }
-    ">"              { return mkSymbol(LangParserSym.GREATER); }
-    "+"              { return mkSymbol(LangParserSym.PLUS); }
-    "-"              { return mkSymbol(LangParserSym.MINUS); }
-    "*"              { return mkSymbol(LangParserSym.TIMES); }
-    "/"              { return mkSymbol(LangParserSym.DIVIDE); }
-    "%"              { return mkSymbol(LangParserSym.MOD); }
-    "!"              { return mkSymbol(LangParserSym.NOT); }
+{identifier}   { return mkSymbol(LangParserSym.ID,  yytext()); }
+{tyid}         { return mkSymbol(LangParserSym.TYID,  yytext()); }
+{integer}      { return mkSymbol(LangParserSym.INT_LITERAL, toInt(yytext()));   }
+{float}        { return mkSymbol(LangParserSym.FLOAT_LITERAL, toFloat(yytext()));   }
+{char}        { return mkSymbol(LangParserSym.CHAR_LITERAL, yytext().charAt(1));   }
+{escape}        { return mkSymbol(LangParserSym.CHAR_LITERAL, escapeToChar(yytext()));   }
+{ascII}        { return mkSymbol(LangParserSym.CHAR_LITERAL, ascIIToChar(yytext()));   }
 
-    /* Punctuation symbols */
-    "("              { return mkSymbol(LangParserSym.OPEN_PARENTHESIS); }
-    ")"              { return mkSymbol(LangParserSym.CLOSE_PARENTHESIS); }
-    "{"              { return mkSymbol(LangParserSym.OPEN_BRACES); }
-    "}"              { return mkSymbol(LangParserSym.CLOSE_BRACES); }
-    ";"              { return mkSymbol(LangParserSym.SEMICOLON); }
-    ","              { return mkSymbol(LangParserSym.COMMA); }
-    ":"              { return mkSymbol(LangParserSym.COLON); }
-    "."              { return mkSymbol(LangParserSym.DOT); }
-    "'"              { return mkSymbol(LangParserSym.QUOTATION_MARKS); }
-
-    /* Identifiers */
-    {identifier}     { return mkSymbol(LangParserSym.IDENTIFIER, yytext()); }
-    {type_id}        { return mkSymbol(LangParserSym.TYPE_ID, yytext()); }
-
-    /* Integer and Float literals */
-    {integer}        { return mkSymbol(LangParserSym.INT_LITERAL, toInt(yytext())); }
-    {float}          { return mkSymbol(LangParserSym.FLOAT_LITERAL, toFloat(yytext())); }
-
-    /* Character literals */
-    {escape}         { return mkSymbol(LangParserSym.ESCAPE, yytext()); }
-    {ascII}          { return mkSymbol(LangParserSym.ASCII, ascIIToChar(yytext())); }
-
-    /* Whitespace (ignored) */
-    {whitespace}     { /* Ignore whitespaces */ }
-
-    /* Array Handling */
-    "["              { yybegin(ARR); arr = new ArrayList<>(); }
-
-    /* Error handling for illegal characters */
-    [^]              { throw new Error("Illegal character <" + yytext() + "> at line " + (yyline + 1) + ", column " + (yycolumn + 1)); }
-}
-
-/* Array Handling State */
-<ARR> {
-    {integer}       { arr.add(Integer.parseInt(yytext())); }
-    {whitespace}    { /* Ignore whitespaces in ARR state */ }
-    "]"             { yybegin(YYINITIAL); return mkSymbol(LangParserSym.ARR, arr); }
+{white}        {/* While reading whites do nothing*/ }
+[^]            {/* Matches any char form the input*/
+                throw new Error("Illegal character <"+ yytext()+">"); }
 }
 
 
