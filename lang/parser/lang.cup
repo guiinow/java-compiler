@@ -24,50 +24,68 @@ scan with {: return s.nextToken(); :};
 
 /* define how to connect to the scanner! */
 
-/*
-   Terminais
-*/
-terminal PLUS, TIMES, LP, RP, ATTR, SEMI, PRINT;
-terminal Integer NUMBER;        // our scanner provides numbers as integers
-terminal Boolean TRUE,FALSE;
-terminal String ID;
+terminal PLUS, MINUS, TIMES, DIVIDE, MOD;
+terminal EQUAL, DIFFERENT, LESS, GREATER;
+terminal AND, NOT, DOUBLE_COLON, ASSIGN;
+terminal OPEN_PARENTHESIS, CLOSE_PARENTHESIS, OPEN_BRACES, CLOSE_BRACES;
+terminal SEMICOLON, COMMA, COLON, DOT, QUOTATION_MARKS;
+terminal Integer INT;
+terminal Float FLOAT;
+terminal String ID, CHAR;
+terminal Boolean BOOL, TRUE, FALSE, NULL;
+terminal IDENTIFIER, TYPE_ID;
+terminal ESCAPE, ASCII;
+terminal ARR;
+
+/* Non-terminais */
+non terminal Prog prog;
+non terminal Exp expr;
+non terminal Type type;
+non terminal Cmd cmd;
+non terminal StmtBlock stmtBlock;
+non terminal LoopCond loopCond;
+non terminal Params params;
+non terminal Decl decl;
+
+/* Precedência e associatividade dos operadores */
+precedence left OR;
+precedence left AND;
+precedence left EQUAL, DIFFERENT, DOUBLE_EQUAL;
+precedence left LESS, GREATER;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+precedence right NOT;
 
 /* Non terminals */
-non terminal Exp expr, lhs;
-non terminal Node prog, cmdList, cmd;
-
-/*
-  Precencia e associatividade dos operadores.
-  Lista em ordem dos de menor prioridade para os de maior
-  prioridade.
-*/
-
-precedence left PLUS;
-precedence left TIMES;
-
-
+non terminal Exp expr;
+non terminal Exp prog;
 
 /* The grammar rules */
 
-prog ::= cmdList:l  {: RESULT = l; :}
+prog ::= expr:e {: RESULT = e; :} 
        ;
 
-cmdList ::= cmd:c cmdList:l   {: RESULT = new Seq(c.getLine(),c.getCol(), c, l); :}
-         |  cmd:c             {: RESULT = c; :}
-         ;
-cmd ::= lhs:i ATTR:s expr:e SEMI {: RESULT = new Attrib(sleft,sright,i,e); :}
-      | PRINT:s expr:e SEMI      {: RESULT = new Print(sleft,sright,e); :}
-     ;
+expr  ::= expr:e1 PLUS:s expr:e2 {: RESULT = new Plus(sleft, sright, e1, e2); :}
+       |  expr:e1 TIMES:s expr:e2 {: RESULT = new Times(sleft, sright, e1, e2); :}
+       |  expr:e1 MINUS:s expr:e2 {: RESULT = new Sub(sleft, sright, e1, e2); :}
+       |  expr:e1 DIVIDE:s expr:e2 {: RESULT = new Div(sleft, sright, e1, e2); :}
+       |  expr:e1 MOD:s expr:e2 {: RESULT = new Mod(sleft, sright, e1, e2); :}
+       |  expr:e1 EQUAL:s expr:e2 {: RESULT = new Equal(sleft, sright, e1, e2); :}
+       |  expr:e1 DIFFERENT:s expr:e2 {: RESULT = new Different(sleft, sright, e1, e2); :}
+       |  expr:e1 LESS:s expr:e2 {: RESULT = new Less(sleft, sright, e1, e2); :}
+       |  expr:e1 GREATER:s expr:e2 {: RESULT = new Greater(sleft, sright, e1, e2); :}
 
-expr  ::= expr:e1 PLUS:o  expr:e2  {: RESULT = new Plus(oleft,oright,e1,e2); :}
-       |  expr:e1 TIMES:o expr:e2  {: RESULT = new Times(oleft,oright,e1,e2);  :}
-       |  LP expr:e RP {: RESULT = e; :}
-       |  NUMBER:n {: RESULT = new IntLit(nleft,nright,n);     :}
-       |  TRUE:b   {: RESULT = new BoolLit(bleft,bright,false); :}
-       |  FALSE:b  {: RESULT = new BoolLit(bleft,bright,true);  :}
-       |  lhs:lh   {: RESULT = lh;         :}
+       /*(???) DÚVIDA: As seguintes instâncias foram criadas extendendo Exp, está correto ou devo criar uma nova superclasse como Div extends BinOp ?*/
+       |  expr:e1 AND:n expr:e2 {: RESULT = new And(nleft, nright, e1, e2); :}
+       |  NOT:n expr:e1 {: RESULT = new Not(nleft, nright, e1); :}
+       /* ???????????????????? */
+       
+
+       |  LP expr:e RP {: RESULT = e; :} 
+       |  INT:n {: RESULT = new Int(nleft, nright, n); :}
+       |  FLOAT:n2 {: RESULT = new Float(n2left, n2right, n2); :} 
+       |  TRUE:t {: RESULT = new Bool(tleft, tright, t); :}
+       |  FALSE:f {: RESULT = new Bool(fleft, fright, f); :}
+       |  ID:i {: RESULT = new Var(ileft, iright, i); :}
        ;
-
-lhs ::=  ID:e     {: RESULT = new Var(eleft,eright,e);         :}
-     ;
 

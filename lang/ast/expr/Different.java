@@ -2,9 +2,9 @@ package lang.ast.expr;
 
 import lang.ast.NodeVisitor;
 
-public class Mod extends BinOp {
+public class Different extends BinOp {
 
-      public Mod(int line, int col, Exp el, Exp er){
+      public Different(int line, int col, Exp el, Exp er){
            super(line,col,el,er);
 
       }

@@ -18,5 +18,7 @@ public class Attrib extends Node {
       public Exp getLhs(){return lhs;}
 
       public void accept(NodeVisitor v){v.visit(this);}
+
+
 }
 

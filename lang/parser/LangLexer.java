@@ -73,10 +73,9 @@ public class LangLexer {
 
   private static final String ZZ_CMAP_BLOCKS_PACKED_0 =
     "\11\0\2\1\2\0\1\1\22\0\1\1\11\0\1\2"+
-    "\1\3\4\0\12\4\1\0\1\5\1\0\1\6\43\0"+
-    "\1\7\3\10\1\11\1\12\2\10\1\13\2\10\1\14"+
-    "\1\10\1\15\1\10\1\16\1\10\1\17\1\20\1\21"+
-    "\1\22\5\10\u0185\0";
+    "\1\3\4\0\12\4\47\0\1\5\3\6\1\7\1\10"+
+    "\5\6\1\11\5\6\1\12\1\13\1\14\1\15\5\6"+
+    "\u0185\0";
 
   private static int [] zzUnpackcmap_blocks() {
     int [] result = new int[512];
@@ -103,11 +102,11 @@ public class LangLexer {
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\1\0\1\1\1\2\1\3\1\4\1\5\1\6\1\7"+
-    "\14\10\1\11\1\12\1\13";
+    "\1\0\1\1\1\2\1\3\1\4\1\5\10\6\1\7"+
+    "\1\10";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[23];
+    int [] result = new int[16];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -132,12 +131,11 @@ public class LangLexer {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\23\0\46\0\23\0\23\0\71\0\23\0\23"+
-    "\0\114\0\137\0\162\0\205\0\230\0\253\0\276\0\321"+
-    "\0\344\0\367\0\u010a\0\u011d\0\114\0\114\0\114";
+    "\0\0\0\16\0\34\0\16\0\16\0\52\0\70\0\106"+
+    "\0\124\0\142\0\160\0\176\0\214\0\232\0\70\0\70";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[23];
+    int [] result = new int[16];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -160,17 +158,15 @@ public class LangLexer {
   private static final int [] ZZ_TRANS = zzUnpacktrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\2\1\3\1\4\1\5\1\6\1\7\1\10\3\11"+
-    "\1\12\3\11\1\13\2\11\1\14\1\11\24\0\1\3"+
-    "\25\0\1\6\25\0\14\11\7\0\1\15\13\11\7\0"+
-    "\10\11\1\16\3\11\7\0\10\11\1\17\3\11\7\0"+
-    "\5\11\1\20\6\11\7\0\4\11\1\21\7\11\7\0"+
-    "\13\11\1\22\7\0\11\11\1\23\2\11\7\0\6\11"+
-    "\1\24\5\11\7\0\2\11\1\25\11\11\7\0\2\11"+
-    "\1\26\11\11\7\0\12\11\1\27\1\11";
+    "\1\2\1\3\1\4\1\5\1\6\3\7\1\10\3\7"+
+    "\1\11\1\7\17\0\1\3\20\0\1\6\16\0\11\7"+
+    "\5\0\1\12\10\7\5\0\5\7\1\13\3\7\5\0"+
+    "\4\7\1\14\4\7\5\0\10\7\1\15\5\0\6\7"+
+    "\1\16\2\7\5\0\2\7\1\17\6\7\5\0\2\7"+
+    "\1\20\6\7";
 
   private static int [] zzUnpacktrans() {
-    int [] result = new int[304];
+    int [] result = new int[168];
     int offset = 0;
     offset = zzUnpacktrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -213,10 +209,10 @@ public class LangLexer {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\1\11\1\1\2\11\1\1\2\11\17\1";
+    "\1\0\1\11\1\1\2\11\13\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[23];
+    int [] result = new int[16];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -740,57 +736,42 @@ public class LangLexer {
                 throw new Error("Illegal character <"+ yytext()+">");
             }
           // fall through
-          case 12: break;
+          case 9: break;
           case 2:
             { /* While reading whites do nothing*/
             }
           // fall through
-          case 13: break;
+          case 10: break;
           case 3:
             { return mkSymbol(LangParserSym.TIMES);
             }
           // fall through
-          case 14: break;
+          case 11: break;
           case 4:
             { return mkSymbol(LangParserSym.PLUS);
             }
           // fall through
-          case 15: break;
+          case 12: break;
           case 5:
             { return mkSymbol(LangParserSym.NUMBER, toInt(yytext()));
             }
           // fall through
-          case 16: break;
+          case 13: break;
           case 6:
-            { return mkSymbol(LangParserSym.SEMI);
-            }
-          // fall through
-          case 17: break;
-          case 7:
-            { return mkSymbol(LangParserSym.ATTR);
-            }
-          // fall through
-          case 18: break;
-          case 8:
             { return mkSymbol(LangParserSym.ID,  yytext());
             }
           // fall through
-          case 19: break;
-          case 9:
+          case 14: break;
+          case 7:
             { return mkSymbol(LangParserSym.TRUE, true);
             }
           // fall through
-          case 20: break;
-          case 10:
+          case 15: break;
+          case 8:
             { return mkSymbol(LangParserSym.FALSE, false);
             }
           // fall through
-          case 21: break;
-          case 11:
-            { return mkSymbol(LangParserSym.PRINT);
-            }
-          // fall through
-          case 22: break;
+          case 16: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }

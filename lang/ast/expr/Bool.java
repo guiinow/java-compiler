@@ -1,17 +1,15 @@
 package lang.ast.expr;
-
 import lang.ast.NodeVisitor;
 
-public class IntLit extends Exp{
+public class Bool extends Exp{
 
-      private int value;
-      public IntLit(int line, int col, int value){
+      private boolean value;
+      public Bool(int line, int col, boolean value){
            super(line,col);
            this.value = value;
       }
 
-      public int getValue(){ return value;}
-
+      public boolean getValue(){ return value;}
 
 
       public void accept(NodeVisitor v){v.visit(this);}

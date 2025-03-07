@@ -5,56 +5,41 @@ import lang.ast.Node;
 import lang.parser.LangParser;
 import lang.parser.LangParserSym;
 import lang.parser.LangLexer;
-import lang.ast.visitors.*;
+import lang.ast.visitors.Interp;
+import lang.ast.NodeVisitor;
 
-public class Lang{
+public class Lang extends NodeVisitor{
 
      public static void runLexer(LangLexer lex)  throws IOException,Exception{
            Symbol tk = lex.nextToken();
            while(tk.sym != LangParserSym.EOF){
-               System.out.println("(" + tk.left + ","  + tk.right + ")" +
-                                  LangParserSym.terminalNames[tk.sym]  +
-                                  (tk.value == null ?  "" : (" val=" + tk.value.toString()) ) );
+               System.out.println("(" + tk.left + ","  + tk.right + ")" + tk.sym);
                tk = lex.nextToken();
            }
-           System.out.println(LangParserSym.terminalNames[tk.sym]);
+           System.out.println(tk.toString());
      }
 
 
     public static void interpret(LangParser p)  throws IOException,Exception{
-        Node root;
-        try{
-           Symbol presult = p.parse();
-           root = (Node)presult.value;
-        }catch(Exception e){ root = null; }
-        if(root != null){
-              Interp interp = new Interp();
-              root.accept(interp);
-              // Para propósitos de testes apenas
-              // Ao entregar o trabalho, comemte as linhas de impressão a seguir:
-              interp.printMemory();
-              if(interp.emptyStack()){
-                 System.out.println("topo da pilha: vazia");
-              }else{
-                 System.out.println("topo da pilha: " +  interp.getStkTop().toString());
-              }
-        }else{
-              System.out.println("Parser error");
-        }
+      Symbol presult = p.parse();
+      Node root = (Node)presult.value;
+      if (presult != null) {
+            Interp v = new Interp();
+            root.accept(v);
+            System.out.println(v.getStackTop());
+      }else{
+            System.out.println("rejected");
+      }
+
     }
 
-    public static void checkSyntax(LangParser p)  throws IOException,Exception{
-        Node root;
-        try{
-           Symbol presult = p.parse();
-           root = (Node)presult.value;
-        }catch(Exception e){
-           root = null;
-        }
-        if(root != null){
-              System.out.println("accepted");
-        }else{
-              System.out.println("rejected");
+    public static void checkSyntax(LangParser p) throws IOException, Exception {
+      Symbol presult = p.parse();
+      Node root = (Node)presult.value;
+      if(presult != null){
+            System.out.println("accepted");
+      }else{
+            System.out.println("rejected");
         }
     }
 
