@@ -2,6 +2,7 @@ package lang.ast.visitors;
 
 
 //import lang.ast.decl.*;
+import java.awt.Event;
 import java.util.Stack;
 import lang.ast.command.*;
 import lang.ast.expr.*;
@@ -19,7 +20,13 @@ public class Interp {
     public Integer getStackTop() {
         return stk.peek();
     }
-    public void visit(Attrib c){}
+
+    public void visit(Attrib c) {
+        System.out.println("Atribuindo " + c.getVar().getName() + " = " + c.getExpr().accept(this));
+        Object value = stk.pop();
+        System.out.println("Valor atribuído: " + value);
+        c.getVar().setValue(value);
+    }
 
     public void visit(Sub  e){}
 
