@@ -1,0 +1,73 @@
+/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
+
+package lang.parser;
+
+import java_cup.runtime.*;
+import lang.ast.*;
+//import lang.ast.decl.*;
+import lang.ast.command.*;
+import lang.ast.expr.*;
+import lang.ast.types.*;
+import java.util.ArrayList;
+
+
+class LangParser;
+parser code {:
+    // Connect this parser to a scanner!
+    LangLexer s;
+    public LangParser(LangLexer s){ this.s=s; }
+    // Get the line
+:}
+
+init with {:               :};
+scan with {: return s.nextToken(); :};
+
+/* define how to connect to the scanner! */
+
+/*
+   Terminais
+*/
+terminal PLUS, TIMES, LP, RP, ATTR, SEMI, PRINT;
+terminal Integer NUMBER;        // our scanner provides numbers as integers
+terminal Boolean TRUE,FALSE;
+terminal String ID;
+
+/* Non terminals */
+non terminal Exp expr, lhs;
+non terminal Node prog, cmdList, cmd;
+
+/*
+  Precencia e associatividade dos operadores.
+  Lista em ordem dos de menor prioridade para os de maior
+  prioridade.
+*/
+
+precedence left PLUS;
+precedence left TIMES;
+
+
+
+/* The grammar rules */
+
+prog ::= cmdList:l  {: RESULT = l; :}
+       ;
+
+cmdList ::= cmd:c cmdList:l   {: RESULT = new Seq(c.getLine(),c.getCol(), c, l); :}
+         |  cmd:c             {: RESULT = c; :}
+         ;
+cmd ::= lhs:i ATTR:s expr:e SEMI {: RESULT = new Attrib(sleft,sright,i,e); :}
+      | PRINT:s expr:e SEMI      {: RESULT = new Print(sleft,sright,e); :}
+     ;
+
+expr  ::= expr:e1 PLUS:o  expr:e2  {: RESULT = new Plus(oleft,oright,e1,e2); :}
+       |  expr:e1 TIMES:o expr:e2  {: RESULT = new Times(oleft,oright,e1,e2);  :}
+       |  LP expr:e RP {: RESULT = e; :}
+       |  NUMBER:n {: RESULT = new IntLit(nleft,nright,n);     :}
+       |  TRUE:b   {: RESULT = new BoolLit(bleft,bright,false); :}
+       |  FALSE:b  {: RESULT = new BoolLit(bleft,bright,true);  :}
+       |  lhs:lh   {: RESULT = lh;         :}
+       ;
+
+lhs ::=  ID:e     {: RESULT = new Var(eleft,eright,e);         :}
+     ;
+
