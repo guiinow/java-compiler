@@ -1,8 +1,8 @@
-
+/*
  * This lexer implementation contains Arrays as tokens.
  * The students are encouraged to argue why this is a bad ideia !
-
-/* Lang lexer specification
+ *
+ * Lang lexer specification
  * Guilherme Ferreira
  * Breno Rotte
  */

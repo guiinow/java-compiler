@@ -16,7 +16,6 @@ cleanClasses:
 
 clean: cleanClasses cleanParser
 
-
 cleanParser:
 	rm lang/parser/LangLexer.java
 	rm lang/parser/LangParser.java
