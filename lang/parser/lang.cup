@@ -93,9 +93,9 @@ non terminal Cmd cmd;
 non terminal List<Param> paramList; // Lista de parâmetros
 non terminal List<Type> typeList; // Lista de tipos
 non terminal LValue lvalue;
-// non terminal List<LValue> lvalueList; // Lista de lvalue
+non terminal List<LValue> lvalueList; // Lista de lvalue
 non terminal List<Exp> expList;     // Lista de expressões
-//non terminal LoopCond loopCond;     // Condição de repetição em loops
+non terminal LoopCond loopCond;     // Condição de repetição em loops
 non terminal Exp exp;
 non terminal Exp rexp;
 non terminal Exp aexp;
@@ -161,7 +161,7 @@ cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
 
 cmd ::=  IF:i LPAREN exp:e RPAREN stmtBlock:sb {: RESULT = new If(ileft,iright, e, sb); :}
        | IF:i LPAREN exp:e RPAREN stmtBlock:sbt ELSE stmtBlock:sbf  {: RESULT = new IfElse(ileft,iright, e, sbt, sbf); :}
-//     | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock {: RESULT = new IterateCmd(itleft,itright); :}
+       | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock {: RESULT = new IterateCmd(itleft,itright); :}
        | READ:r lvalue:lv SEMICOLON {: RESULT = new ReadCmd(rleft,rright, lv); :}
        | PRINT:p exp:e SEMICOLON {: RESULT = new PrintCmd(pleft,pright, e); :}
        | RETURN:r exp:e expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, e, exps); :}
@@ -183,14 +183,6 @@ paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(il
 //cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
 //          | {: RESULT = new ArrayList<Cmd>(); :};
 
-//cmd ::= IF LPAREN exp:e RPAREN cmd:c {: RESULT = new If(ifleft, ifright, e, c); :}
-//     | IF LPAREN exp:e RPAREN cmd:c1 ELSE cmd:c2 {: RESULT = new IfElse(ifleft, ifright, e, c1, c2); :}
-//     | ITERATE LPAREN exp:e RPAREN cmd:c {: RESULT = new IterateCmd(iterateleft, iterateright, e, c); :}
-//     | READ lvalue:l SEMICOLON {: RESULT = new ReadCmd(readleft, readright, l); :}
-//     | PRINT exp:e SEMICOLON {: RESULT = new PrintCmd(printleft, printright, e); :}
-//     | RETURN expList:el SEMICOLON {: RESULT = new ReturnCmd(returnleft, returnright, el); :}
-//     | lvalue:l ATBR exp:e SEMICOLON {: RESULT = new AssignCmd(atbrleft, atbrright, l, e); :}
-//     | ID:i LPAREN expList:el RPAREN SEMICOLON {: RESULT = new FuncCall(i, el); :};
 
 //expList ::= expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
 //          | exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
