@@ -1,14 +1,14 @@
 package lang.ast.command;
 
+import lang.ast.expr.LoopCond;
 import lang.ast.LVisitor;
-import lang.ast.expr.Exp;
+import lang.ast.decl.StmtBlock;
 
 public class IterateCmd extends Cmd {
-    private String loopCondString;
-    private Exp loopCondExpressao;
-    private Cmd body;
+    private LoopCond loopCond;
+    private StmtBlock body;
 
-    public IterateCmd(int line, int column, String loopCondString, Exp loopCondExpessao, Cmd body) {
+    public IterateCmd(int line, int column, LoopCond loopCond, StmtBlock body) {
         super(line, column);
         this.loopCondString = loopCondString;
         this.loopCondExpressao = loopCondExpressao;
@@ -24,7 +24,7 @@ public class IterateCmd extends Cmd {
         return loopCondExpressao;
     }
 
-    public Cmd getBody() {
+    public StmtBlock getBody() {
         return body;
     }
 
@@ -37,5 +37,4 @@ public class IterateCmd extends Cmd {
     public String toString() {
         return "IterateCmd(" + loopCondString + ", " + body + ")"; //colocar pra imprimir o loopcond expressao
     }
-
 }

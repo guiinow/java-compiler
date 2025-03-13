@@ -186,12 +186,21 @@ public class Interp extends LVisitor {
     boolean r = !right;
     stk.push(r);
   }
+  public LoopCond getLoopCond() {
+    return (LoopCond) stk.pop();
+  }
+
   @Override
   public void visit(LParen d) {
   }
   @Override
   public void visit(RParen d) {
   }
+
+ @Override
+  public void visit(LoopCond d) {
+  }
+
   @Override
   public void visit(LBracket d) {
   }
@@ -373,6 +382,11 @@ public class Interp extends LVisitor {
   @Override
   public void visit(Iterate r) {
   }
+
+  @Override
+  public void visit(IterateCmd r) {
+  }
+
   @Override
   public void visit(Print r) {
   }
