@@ -186,6 +186,10 @@ public class Interp extends LVisitor {
     boolean r = !right;
     stk.push(r);
   }
+  public LoopCond getLoopCond() {
+    return (LoopCond) stk.pop();
+  }
+
   @Override
   public void visit(LParen d) {
   }

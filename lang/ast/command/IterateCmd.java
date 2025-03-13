@@ -1,13 +1,14 @@
 package lang.ast.command;
 
-import lang.ast.LoopCond;
+import lang.ast.expr.LoopCond;
 import lang.ast.LVisitor;
+import lang.ast.decl.StmtBlock;
 
 public class IterateCmd extends Cmd {
     private LoopCond loopCond;
-    private Cmd body;
+    private StmtBlock body;
 
-    public IterateCmd(int line, int column, LoopCond loopCond, Cmd body) {
+    public IterateCmd(int line, int column, LoopCond loopCond, StmtBlock body) {
         super(line, column);
         this.loopCond = loopCond;
         this.body = body;
@@ -17,7 +18,7 @@ public class IterateCmd extends Cmd {
         return loopCond;
     }
 
-    public Cmd getBody() {
+    public StmtBlock getBody() {
         return body;
     }
 

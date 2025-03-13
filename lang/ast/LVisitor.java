@@ -85,6 +85,8 @@ public abstract class LVisitor {
 
     public abstract void visit(Var o);
 
+    public abstract void vist(LoopCond o);
+
     // types
     public abstract void visit(TyId t);
 
