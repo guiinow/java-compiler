@@ -161,7 +161,7 @@ cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
 
 cmd ::=  IF:i LPAREN exp:e RPAREN stmtBlock:sb {: RESULT = new If(ileft,iright, e, sb); :}
        | IF:i LPAREN exp:e RPAREN stmtBlock:sbt ELSE stmtBlock:sbf  {: RESULT = new IfElse(ileft,iright, e, sbt, sbf); :}
-       | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock {: RESULT = new IterateCmd(itleft,itright); :}
+       | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock:stmt {: RESULT = new IterateCmd(itleft,itright, lc, stmt); :}
        | READ:r lvalue:lv SEMICOLON {: RESULT = new ReadCmd(rleft,rright, lv); :}
        | PRINT:p exp:e SEMICOLON {: RESULT = new PrintCmd(pleft,pright, e); :}
        | RETURN:r exp:e expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, e, exps); :}
@@ -195,7 +195,7 @@ paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(il
 //expList ::= expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
 //          | exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
 
-loopCond ::= ID:i COLON exp:e {: RESULT = new NamedLoopCond(ileft, iright, i, e); :}
+loopCond ::= ID:i COLON exp:e {: RESULT = new LoopCond(ileft, iright, e); :}
            | exp:e {: RESULT = new LoopCond(eleft, eright, e); :};
 
 

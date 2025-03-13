@@ -1,15 +1,15 @@
 package lang.ast;
 
 import lang.ast.command.*;
-import lang.ast.delimiters.*;
-import lang.ast.expr.*;
-import lang.ast.types.*;
-import lang.ast.reserved.*;
-import lang.ast.eof.*;
 import lang.ast.decl.*;
+import lang.ast.delimiters.*;
+import lang.ast.eof.*;
+import lang.ast.expr.*;
+import lang.ast.reserved.*;
+import lang.ast.types.*;
 
 public abstract class LVisitor {
-    public abstract void visit(Program p);
+    public abstract void visit(LoopCond p);
 
     public abstract void visit(FunDef p);
 
@@ -85,7 +85,6 @@ public abstract class LVisitor {
 
     public abstract void visit(Var o);
 
-    public abstract void vist(LoopCond o);
 
     // types
     public abstract void visit(TyId t);
@@ -123,8 +122,11 @@ public abstract class LVisitor {
     public abstract void visit(Data r);
 
     public abstract void visit(Iterate r);
+    
+    public abstract void visit(IterateCmd r);
 
     public abstract void visit(Print r);
+    public abstract void visit(Program p);
 
     public abstract void visit(Read r);
 

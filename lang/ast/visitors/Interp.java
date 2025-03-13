@@ -196,6 +196,11 @@ public class Interp extends LVisitor {
   @Override
   public void visit(RParen d) {
   }
+
+ @Override
+  public void visit(LoopCond d) {
+  }
+
   @Override
   public void visit(LBracket d) {
   }
@@ -377,6 +382,11 @@ public class Interp extends LVisitor {
   @Override
   public void visit(Iterate r) {
   }
+
+  @Override
+  public void visit(IterateCmd r) {
+  }
+
   @Override
   public void visit(Print r) {
   }
