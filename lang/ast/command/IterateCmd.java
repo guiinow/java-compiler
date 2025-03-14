@@ -10,18 +10,12 @@ public class IterateCmd extends Cmd {
 
     public IterateCmd(int line, int column, LoopCond loopCond, StmtBlock body) {
         super(line, column);
-        this.loopCondString = loopCondString;
-        this.loopCondExpressao = loopCondExpressao;
+        this.loopCond = loopCond;
         this.body = body;
     }
 
-    public String getLoopCondString()
-    {
-        return loopCondString;
-    }
-    
-     public Exp getLoopCondExpressao() {
-        return loopCondExpressao;
+    public LoopCond getLoopCond() {
+        return loopCond;
     }
 
     public StmtBlock getBody() {
@@ -35,6 +29,6 @@ public class IterateCmd extends Cmd {
     
     @Override
     public String toString() {
-        return "IterateCmd(" + loopCondString + ", " + body + ")"; //colocar pra imprimir o loopcond expressao
+        return "IterateCmd(" + loopCond + ", " + body + ")";
     }
 }

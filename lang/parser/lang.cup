@@ -93,7 +93,7 @@ non terminal Cmd cmd;
 non terminal List<Param> paramList; // Lista de parâmetros
 non terminal List<Type> typeList; // Lista de tipos
 non terminal LValue lvalue;
-non terminal List<LValue> lvalueList; // Lista de lvalue
+//non terminal List<LValue> lvalueList; // Lista de lvalue
 non terminal List<Exp> expList;     // Lista de expressões
 non terminal LoopCond loopCond;     // Condição de repetição em loops
 non terminal Exp exp;

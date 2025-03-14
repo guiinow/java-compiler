@@ -97,8 +97,14 @@ public class LangTester{
                   System.out.write(sepbuff,0,maxfname - fsrc.getName().length());
                   System.out.print("[");
                   p = rn.exec(cmd +" " + fsrc.getAbsolutePath());
-                  out = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
-                  if(out.equals("rejected")){
+                  procr = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                  out = procr.readLine();
+                  boolean rej = false;
+                  while(out != null && !rej){
+                    rej = out.equals("rejected");
+                    out = procr.readLine();
+                  }
+                  if(rej){
                       System.out.println(" OK ]");
                       passed++;
                   }else{
@@ -339,8 +345,16 @@ public class LangTester{
        //System.out.println(cmd2);
        //String cmd1 = "java -cp ..:../lang/tools/java-cup-11b-runtime.jar lang/LangCompiler -syn";
        //String cmd2 = "java -cp ..:../lang/tools/java-cup-11b-runtime.jar lang/LangCompiler -i";
-       synTests(cmd1);
-       semTests(cmd2);
+       if(args.length  == 0){
+         synTests(cmd1);
+         semTests(cmd2);
+       }else if(args[0].equals("-syn")){
+         synTests(cmd1);
+       }else if(args[0].equals("-sem")){
+         semTests(cmd2);
+       }else{
+          System.out.println("Chame com -syn ou -sem ou sem parâmetros.");
+       }
    }
 
 }
