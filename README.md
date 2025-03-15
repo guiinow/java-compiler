@@ -74,35 +74,67 @@ Token: (4,0) TK: EOF
 ```
 
 ---
-## Neste parte serão feitas as documentações acerca do Parser e Interpreter
+# Estrutura do Projeto
 
-# **Árvore Sintática Abstrata (AST) para a Linguagem Lang**  
+├── **exemplos/**                 # Exemplos de código na linguagem Lang  
+├── **lang/**                     # Código-fonte do compilador  
+│   ├── **ast/**                  # Representação da Árvore Sintática Abstrata  
+│   ├── **parser/**               # Arquivos do analisador léxico e sintático  
+├── **testes/**                   # Casos de teste para sintaxe e semântica  
+│   ├── **sintaxe/**              # Testes sintáticos  
+│   ├── **semantica/**            # Testes semânticos  
+├── **tools/**                    # Ferramentas auxiliares (CUP, JFlex, etc.)  
+├── **makefile**                  # Automação da compilação  
+├── **langc.sh**                  # Script para rodar o compilador  
+└── **README.md**                 # Documentação do projeto  
 
-Este projeto implementa a **AST (Abstract Syntax Tree)** da linguagem Lang, estruturando o código-fonte e representando a sintaxe da linguagem.  
+## Compilação e Execução
 
-## **Como Rodar**  
+### Compilar o Compilador:
+Para compilar o compilador, execute o seguinte comando:
+bash
+make
 
-1. **Acesse o diretório do parser**  
+Isso irá gerar os arquivos .class necessários.
 
-2. **Compile e execute a AST:**  
-   ```bash
-   make AST
-   ```
-
-3. **Limpe os arquivos gerados:**  
-   ```bash
-   make clean
-   ```  
-
-O programa exibe no terminal a estrutura da AST gerada a partir do código definido em **AST.java**.
-o Mafefile que se deve usar é o no diretório raíz
+### Rodar o Compilador:
+O compilador pode ser executado com diferentes opções:
+bash
+./langc.sh -lex <arquivo.lan>   # Apenas listar tokens
+./langc.sh -syn <arquivo.lan>   # Apenas verificar sintaxe
+./langc.sh -i <arquivo.lan>     # Interpretar o código Lang
 
 
-Pra construção dos nós da AST:
-1. cria nó no pacote apropriado
-2. adiciona-o no nodes Visitor.java
-3. adiciona-o na implementação do interpretador, no interp.java
+## Decisões de Projeto
 
+### Representação da Linguagem
+A linguagem Lang é representada por uma Árvore Sintática Abstrata (AST), onde cada nó da árvore representa uma estrutura da linguagem (expressões, comandos, funções, etc.).
 
-preciso representar, com nós, if, print, iterate, operadores binarios (todos), função, um nó pra representar bind de tipo, um nó pra representar
-tipos (int, bool, char...), arr, userDataType, declaração de tipo de dados (bind de tipo), nó de atribuição.
+### Analisador Léxico (JFlex)
+O analisador léxico (lang/parser/lang.flex) converte o código-fonte em tokens reconhecíveis pelo analisador sintático. Ele identifica palavras-chave, operadores, literais, identificadores e símbolos especiais.
+
+### Analisador Sintático (CUP)
+O analisador sintático (lang/parser/lang.cup) usa os tokens gerados pelo léxico para construir a AST e verificar a validade da estrutura do programa. Ele lida com ambiguidades usando regras de precedência e associatividade.
+
+### Estratégia de Interpretação
+O interpretador (lang/ast/visitors/Interp.java) percorre a AST e executa o código interpretando cada nó. Para expressões, ele avalia e retorna valores, e para comandos, ele altera o estado do programa.
+
+### Execução dos Testes
+Os testes são organizados em testes/sintaxe/ e testes/semantica/, verificando tanto a estrutura sintática quanto a execução semântica dos programas Lang.
+
+### Extensibilidade
+O projeto foi estruturado de forma modular, permitindo a adição de novos recursos na linguagem Lang. Para adicionar um novo comando, é necessário:
+- Criar um token no léxico (lang.flex)
+- Criar uma regra gramatical no parser (lang.cup)
+- Criar uma classe na AST para representar a nova construção
+- Implementar o comportamento no interpretador (Interp.java)
+- Criar testes para validar o novo recurso
+
+## Ferramentas Utilizadas
+- Java CUP para geração do analisador sintático
+- JFlex para geração do analisador léxico
+- Java como linguagem principal
+- Makefile para automação da compilação
+
+## Considerações Finais
+Este projeto serve como um estudo de caso para a construção de compiladores educacionais, cobrindo aspectos fundamentais da análise léxica, sintática e semântica. Ele pode ser expandido com novas funcionalidades, como suporte a novos operadores, estruturas de controle e otimizações.

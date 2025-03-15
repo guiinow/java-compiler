@@ -151,7 +151,6 @@ btype ::= INT_TYPE:it {: RESULT = new TyInt(itleft, itright); :}
        | FLOAT_TYPE:ft {: RESULT = new TyFloat(ftleft, ftright); :}
        | TYID:ty {: RESULT = new TyId(tyleft, tyright, ty); :};
 
-block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft,clright,cl); :};
 
 stmtBlock ::= block:bk {: RESULT = new StmtBlock(bkleft,bkright,bk.getCommands()); :}
        | cmd:c {: RESULT = new StmtBlock(cleft,cright,Arrays.asList(c)); :};
@@ -159,16 +158,20 @@ stmtBlock ::= block:bk {: RESULT = new StmtBlock(bkleft,bkright,bk.getCommands()
 cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
        | {: RESULT = new ArrayList<Cmd>(); :};
 
+
 cmd ::=  IF:i LPAREN exp:e RPAREN stmtBlock:sb {: RESULT = new If(ileft,iright, e, sb); :}
        | IF:i LPAREN exp:e RPAREN stmtBlock:sbt ELSE stmtBlock:sbf  {: RESULT = new IfElse(ileft,iright, e, sbt, sbf); :}
        | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock:stmt {: RESULT = new IterateCmd(itleft,itright, lc, stmt); :}
        | READ:r lvalue:lv SEMICOLON {: RESULT = new ReadCmd(rleft,rright, lv); :}
        | PRINT:p exp:e SEMICOLON {: RESULT = new PrintCmd(pleft,pright, e); :}
        | RETURN:r exp:e expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, e, exps); :}
-       | lvalue:lv ATBR exp:e SEMICOLON {: RESULT = new Cmd(lvleft,lvright); :}; // FALTA O ULTIMO CMD
+       | lvalue:lv ATBR exp:e SEMICOLON {: RESULT = new AssignCmd(lvleft, lvright, lv, e); :};
 
-// lvalueList ::=  lvalue:lv {: List<LValue> list = new ArrayList<LValue>(); list.add(lv); RESULT = list; :}
-//             | lvalue_list:lvl COMMA lvalue:lv {: lvl.add(lv); RESULT = lvl; :};
+
+
+
+ //lvalueList ::=  lvalue:lv {: List<LValue> list = new ArrayList<LValue>(); list.add(lv); RESULT = list; :}
+ //      | lvalueList:lvl COMMA lvalue:lv {: lvl.add(lv); RESULT = lvl; :};
 
 lvalue ::= ID:id {: RESULT = new LValue(idleft, idright, id); :}
          | lvalue:lv LBRACKET exp:e RBRACKET {: RESULT = new ArrayAccess(lvleft, lvright, lv, e); :}
@@ -178,14 +181,11 @@ paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(il
            | ID:i DOUBLE_COLON type:t {: List<Param> p = new ArrayList<>(); p.add(new Param(ileft, iright, i, t)); RESULT = p; :}
            | {: RESULT = new ArrayList<Param>(); :};
 
-//block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft, clright, cl); :};
-
-//cmdList ::= cmdList:cl cmd:c {: cl.add(c); RESULT = cl; :}
-//          | {: RESULT = new ArrayList<Cmd>(); :};
+block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft, clright, cl); :};
 
 
-//expList ::= expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
-//          | exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
+expList ::= expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
+          | exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
 
 loopCond ::= ID:i COLON exp:e {: RESULT = new LoopCond(ileft, iright, e); :}
            | exp:e {: RESULT = new LoopCond(eleft, eright, e); :};

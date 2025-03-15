@@ -226,7 +226,7 @@ public class Interp extends LVisitor {
     Object value = stk.pop();
 
     // Armazena o valor na variável do lado esquerdo
-    setVarValue(c.getVar().getName(), value);
+    setVarValue(c.getVar().getId(), value);
 
     // Empilha o valor novamente (opcional, dependendo da semântica da linguagem)
     stk.push(value);

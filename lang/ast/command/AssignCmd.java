@@ -1,29 +1,41 @@
+
+
 package lang.ast.command;
 
 import lang.ast.LVisitor;
 import lang.ast.expr.Exp;
-import lang.ast.expr.Var;
+import lang.ast.expr.LValue;
 
 public class AssignCmd extends Cmd {
-   private Var var; // Lado esquerdo da atribuição (variável)
-   private Exp exp; // Lado direito da atribuição (expressão)
+    private final LValue lvalue;
+    private final Exp exp;
 
-   public AssignCmd(int line, int column, Var var, Exp exp) {
-      super(line, column);
-      this.var = var;
-      this.exp = exp;
+    public AssignCmd(int line, int column, LValue lvalue, Exp exp) {
+        super(line, column);
+        this.lvalue = lvalue;
+        this.exp = exp;
+    }
+
+    public LValue getLValue() {
+        return lvalue;
+    }
+
+    public Exp getExp() {
+       return exp;
+    }
+    
+
+   public LValue getVar() {
+      return lvalue;
    }
 
-   public Var getVar() {
-      return var;
-   }
+    @Override
+    public void accept(LVisitor v) {
+        v.visit(this);
+    }
 
-   public Exp getExp() {
-      return exp;
-   }
-
-   @Override
-   public void accept(LVisitor visitor) {
-      visitor.visit(this);
-   }
+    @Override
+    public String toString() {
+        return lvalue + " = " + exp + ";";
+    }
 }
