@@ -1,3 +1,6 @@
+// Guilherme Ferreira 19.2.8981
+//Breno Rotte 20.1.8124
+
 # Analisador Léxico para a Linguagem Lang
 
 Este projeto é um analisador léxico desenvolvido para a linguagem fictícia "Lang". Ele utiliza a ferramenta **JFlex** para gerar um lexer (analisador léxico) que reconhece os tokens da linguagem com base na gramática definida.
