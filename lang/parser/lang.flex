@@ -138,6 +138,7 @@ escape = "'" \\[ntbr\\\\e'\"] "'"
 "."            { return mkSymbol(LangParserSym.DOT);  }
 ","            { return mkSymbol(LangParserSym.COMMA);  }
 "="            { return mkSymbol(LangParserSym.ATBR);  }
+"new"          { return mkSymbol(LangParserSym.NEW);  }
 
 {identifier}   { return mkSymbol(LangParserSym.ID,  yytext()); }
 {tyid}         { return mkSymbol(LangParserSym.TYID,  yytext()); }

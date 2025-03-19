@@ -3,7 +3,7 @@ package lang.ast.expr;
 import lang.ast.LNode;
 import lang.ast.LVisitor;
 
-public class LValue extends LNode {
+public class LValue extends Exp {
     private String id;
 
     public LValue(int line, int column, String id) {

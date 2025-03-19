@@ -142,7 +142,7 @@ public class LangTester{
         }
 
         if(fails > 1){
-            System.out.println(pass + " casos de testes falharam");
+            System.out.println(fails + " casos de testes falharam");
         }else if(fails == 1){
             System.out.println("1 caso de teste falhou");
         }else{

@@ -10,7 +10,6 @@ import lang.ast.expr.*;
 import lang.ast.types.*;
 import lang.ast.decl.*;
 import lang.ast.reserved.*;
-import lang.ast.delimiters.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
@@ -76,6 +75,7 @@ terminal ITERATE;       // iterate
 terminal READ;          // read
 terminal RETURN;        // return
 terminal PRINT;         // print
+terminal NEW;           // new
 
 /* Non terminals */
 non terminal Program prog;
@@ -94,7 +94,6 @@ non terminal Cmd cmd;
 non terminal List<Param> paramList; // Lista de parâmetros
 non terminal List<Type> typeList; // Lista de tipos
 non terminal LValue lvalue;
-//non terminal List<LValue> lvalueList; // Lista de lvalue
 non terminal List<Exp> expList;     // Lista de expressões
 non terminal LoopCond loopCond;     // Condição de repetição em loops
 non terminal Exp exp;
@@ -165,14 +164,11 @@ cmd ::=  IF:i LPAREN exp:e RPAREN stmtBlock:sb {: RESULT = new If(ileft,iright, 
        | ITERATE:it LPAREN loopCond:lc RPAREN stmtBlock:stmt {: RESULT = new IterateCmd(itleft,itright, lc, stmt); :}
        | READ:r lvalue:lv SEMICOLON {: RESULT = new ReadCmd(rleft,rright, lv); :}
        | PRINT:p exp:e SEMICOLON {: RESULT = new PrintCmd(pleft,pright, e); :}
-       | RETURN:r exp:e expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, e, exps); :}
-       | lvalue:lv ATBR exp:e SEMICOLON {: RESULT = new AssignCmd(lvleft, lvright, lv, e); :};
+       | RETURN:r expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, exps); :}
+       | lvalue:lv ATBR exp:e SEMICOLON {: RESULT = new AssignCmd(lvleft, lvright, lv, e); :}
+       | ID:i LPAREN expList:e2 RPAREN LT lvalue:lv GT SEMICOLON{: RESULT = new CallCmd(ileft, iright, i, e2, lv); :}
+       | ID:i LPAREN expList:e2 RPAREN SEMICOLON{: RESULT = new CallCmd(ileft, iright, i, e2, null); :};
 
-
-
-
- //lvalueList ::=  lvalue:lv {: List<LValue> list = new ArrayList<LValue>(); list.add(lv); RESULT = list; :}
- //      | lvalueList:lvl COMMA lvalue:lv {: lvl.add(lv); RESULT = lvl; :};
 
 lvalue ::= ID:id {: RESULT = new LValue(idleft, idright, id); :}
          | lvalue:lv LBRACKET exp:e RBRACKET {: RESULT = new ArrayAccess(lvleft, lvright, lv, e); :}
@@ -185,8 +181,8 @@ paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(il
 block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft, clright, cl); :};
 
 
-expList ::= expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
-          | exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
+expList ::=  expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
+          |  exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
 
 loopCond ::= ID:i COLON exp:e {: RESULT = new LoopCond(ileft, iright, e); :}
            | exp:e {: RESULT = new LoopCond(eleft, eright, e); :};
@@ -201,13 +197,13 @@ rexp ::=  aexp:e1 GT:gt aexp:e2 {: RESULT = new GtOperator(gtleft,gtright,e1,e2)
        |  rexp:e1 NEQ:neq aexp:e2 {: RESULT = new NeqOperator(neqleft,neqright,e1,e2); :}
        |  aexp:a {: RESULT = a; :};
 
-aexp  ::= aexp:e1 PLUS:p mexp:e2 {: RESULT = new PlusOperator(pleft,pright,e1,e2); :}
-       |  aexp:e1 SUB:u mexp:e2 {: RESULT = new MinusOperator(uleft,uright,e1,e2); :}
+aexp  ::= aexp:e1 PLUS:p aexp:e2 {: RESULT = new PlusOperator(pleft,pright,e1,e2); :}
+       |  aexp:e1 SUB:u aexp:e2 {: RESULT = new MinusOperator(uleft,uright,e1,e2); :}
        |  mexp:m {: RESULT = m; :};
 
-mexp ::=  mexp:e1 MULT:s sexp:e2 {: RESULT = new MultOperator(sleft,sright,e1,e2); :}
-       |  mexp:e1 DIV:d sexp:e2 {: RESULT = new DivOperator(dleft,dright,e1,e2); :}
-       |  mexp:e1 MOD:m sexp:e2 {: RESULT = new ModOperator(mleft,mright,e1,e2); :}
+mexp ::=  mexp:e1 MULT:s mexp:e2 {: RESULT = new MultOperator(sleft,sright,e1,e2); :}
+       |  mexp:e1 DIV:d mexp:e2 {: RESULT = new DivOperator(dleft,dright,e1,e2); :}
+       |  mexp:e1 MOD:m mexp:e2 {: RESULT = new ModOperator(mleft,mright,e1,e2); :}
        |  sexp:s {: RESULT = s; :};
 
 sexp ::=  NOT:no sexp:e1 {: RESULT = new NotOperator(noleft,noright,e1); :}
@@ -221,5 +217,9 @@ sexp ::=  NOT:no sexp:e1 {: RESULT = new NotOperator(noleft,noright,e1); :}
        |  pexp:p {: RESULT = p; :};
 
 pexp ::=  LPAREN exp:e RPAREN {: RESULT = e; :}
-       |  LBRACKET exp:e RBRACKET {: RESULT = e; :};
-       
+       |  LBRACKET exp:e RBRACKET {: RESULT = e; :}
+       |  NEW:n type:t LBRACKET exp:e RBRACKET {: RESULT = new New(nleft,nright,t,e); :}
+       |  NEW:n type:t  {: RESULT = new New(nleft,nright,t, null); :}
+       |  lvalue:e {: RESULT = e; :}
+       |  ID:i LPAREN expList:el RPAREN RBRACKET exp:e2 RBRACKET{: RESULT = new CallExp(ileft, iright, i, el, e2); :};
+

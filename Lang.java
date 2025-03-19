@@ -1,19 +1,15 @@
 // Guilherme Ferreira 19.2.8981
 //Breno Rotte 20.1.8124
 
-import java_cup.runtime.Symbol;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.*;
-import java.util.*;
 
+import java_cup.runtime.Symbol;
 import lang.ast.LNode;
-import lang.ast.visitors.*;
+import lang.ast.visitors.Interp;
+import lang.parser.LangLexer;
 import lang.parser.LangParser;
 import lang.parser.LangParserSym;
-import lang.parser.LangLexer;
-
-import java.io.FileNotFoundException;
 
 public class Lang {
     public static void runLexer(LangLexer lex) throws IOException, Exception {
@@ -39,13 +35,18 @@ public class Lang {
     }
 
     public static void checkSyntax(LangParser p) throws IOException, Exception {
-        Symbol presult = p.parse();
+        Symbol presult;
+        try{
+        presult = p.parse();
         LNode root = (LNode) presult.value;
         if (presult != null) {
             System.out.println("accepted");
         } else {
             System.out.println("rejected");
         }
+    }catch(Exception e){
+         System.out.println("rejected");
+    }
     }
 
     public static void main(String args[]) throws IOException, Exception {

@@ -9,7 +9,6 @@ import java.util.*;
 import lang.ast.types.*;
 import lang.ast.command.*;
 import lang.ast.decl.*;
-import lang.ast.delimiters.*;
 import lang.ast.eof.*;
 
 public class Interp extends LVisitor {
@@ -37,6 +36,16 @@ public class Interp extends LVisitor {
   }
 
   @Override
+  public void visit(CallCmd c) {
+    
+  }
+
+  @Override
+  public void visit(CallExp c) {
+    
+  }
+
+  @Override
   public void visit(Program p) {
     for (Data data : p.getData()) {
       data.accept(this);
@@ -61,6 +70,13 @@ public class Interp extends LVisitor {
       stk.push(r);
     }
   };
+
+  @Override
+  public void visit(New n)
+  {
+  }
+
+
   @Override
   public void visit(MultOperator e) {
     e.getLeft().accept(this);
@@ -190,33 +206,11 @@ public class Interp extends LVisitor {
     return (LoopCond) stk.pop();
   }
 
-  @Override
-  public void visit(LParen d) {
-  }
-  @Override
-  public void visit(RParen d) {
-  }
-
  @Override
   public void visit(LoopCond d) {
   }
 
-  @Override
-  public void visit(LBracket d) {
-  }
-  @Override
-  public void visit(RBracket d) {
-  }
-  @Override
-  public void visit(Attrib e) {
-    // e.getRight().accept(this);
-    // Var left = e.getLeft();
 
-    // Object right = stk.pop();
-    // left.setValue(right);
-
-    // stk.push(right);
-  }
   @Override
   public void visit(AssignCmd c) {
     // Avalia a expressão do lado direito
@@ -231,14 +225,7 @@ public class Interp extends LVisitor {
     // Empilha o valor novamente (opcional, dependendo da semântica da linguagem)
     stk.push(value);
   }
-  @Override
-  public void visit(Var e) {
-    // Obtém o valor da variável da tabela
-    Object value = getVarValue(e.getName());
 
-    // Empilha o valor na pilha
-    stk.push(value);
-  }
   @Override
   public void visit(IntLit e) {
     stk.push(e.getValue());
@@ -292,11 +279,7 @@ public class Interp extends LVisitor {
     stk.push(p.getBody());
     stk.push(p.getRetrn());
   }
-  @Override
-  public void visit(Bind p) {
-    stk.push(p.getVar());
-    stk.push(p.getType());
-  }
+  
   @Override
   public void visit(Decl p) {
     stk.push(p.getFieldName());
@@ -309,9 +292,7 @@ public class Interp extends LVisitor {
     }
     stk.push(p.getCommands());
   }
-  @Override
-  public void visit(DotOperator o) {
-  }
+
   @Override
   public void visit(Cmd o) {
 
@@ -353,18 +334,6 @@ public class Interp extends LVisitor {
     stk.push(o.getValue());
   }
   @Override
-  public void visit(Comma d) {
-  }
-  @Override
-  public void visit(LBrace d) {
-  }
-  @Override
-  public void visit(RBrace d) {
-  }
-  @Override
-  public void visit(Semicolon d) {
-  }
-  @Override
   public void visit(Data r) {
     stk.push(r.getFields());
     stk.push(r.getTypeName());
@@ -379,26 +348,12 @@ public class Interp extends LVisitor {
   public void visit(IfElse r) {
 
   }
-  @Override
-  public void visit(Iterate r) {
-  }
+
 
   @Override
   public void visit(IterateCmd r) {
   }
 
-  @Override
-  public void visit(Print r) {
-  }
-  @Override
-  public void visit(Read r) {
-  }
-  @Override
-  public void visit(Res r) {
-  }
-  @Override
-  public void visit(Return r) {
-  }
   @Override
   public void visit(EOF e) {
   };

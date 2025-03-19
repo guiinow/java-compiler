@@ -2,7 +2,6 @@ package lang.ast;
 
 import lang.ast.command.*;
 import lang.ast.decl.*;
-import lang.ast.delimiters.*;
 import lang.ast.eof.*;
 import lang.ast.expr.*;
 import lang.ast.reserved.*;
@@ -13,9 +12,12 @@ public abstract class LVisitor {
 
     public abstract void visit(FunDef p);
 
-    public abstract void visit(Bind p);
-
     public abstract void visit(Decl p);
+
+    public abstract void visit(CallCmd c);
+    public abstract void visit(CallExp c);
+
+    public abstract void visit(New n);
 
     public abstract void visit(Block p);
 
@@ -42,7 +44,6 @@ public abstract class LVisitor {
     public abstract void visit(LValue p);
 
     // command
-    public abstract void visit(Attrib c);
 
     public abstract void visit(AssignCmd c);
 
@@ -69,7 +70,6 @@ public abstract class LVisitor {
 
     public abstract void visit(NotOperator o); // NOT
 
-    public abstract void visit(DotOperator o); // DOT
 
     public abstract void visit(UnaryMinusOperator o); // DOT
 
@@ -83,7 +83,6 @@ public abstract class LVisitor {
 
     public abstract void visit(CharLit o);
 
-    public abstract void visit(Var o);
 
 
     // types
@@ -102,37 +101,19 @@ public abstract class LVisitor {
     public abstract void visit(Type t);
 
     // delimiters
-    public abstract void visit(Comma d);
 
-    public abstract void visit(LBrace d);
 
-    public abstract void visit(RBrace d);
 
-    public abstract void visit(LBracket d);
-
-    public abstract void visit(RBracket d);
-
-    public abstract void visit(LParen d);
-
-    public abstract void visit(RParen d);
-
-    public abstract void visit(Semicolon d);
 
     // reserved
     public abstract void visit(Data r);
 
-    public abstract void visit(Iterate r);
-    
     public abstract void visit(IterateCmd r);
 
-    public abstract void visit(Print r);
     public abstract void visit(Program p);
 
-    public abstract void visit(Read r);
 
-    public abstract void visit(Res r);
 
-    public abstract void visit(Return r);
 
     // EOF
     public abstract void visit(EOF e);
