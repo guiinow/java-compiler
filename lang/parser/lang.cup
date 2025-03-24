@@ -117,6 +117,8 @@ precedence left MULT, DIV, MOD;
 precedence right NOT, SUB;
 precedence left LBRACKET, RBRACKET, LPAREN, RPAREN;
 
+precedence nonassoc ELSE;
+
 /* The grammar rules */
 
 prog ::= dataList:d funcList:f {: RESULT = new Program(dleft,dright,d,f); :};
@@ -215,7 +217,7 @@ sexp ::=  NOT:no sexp:e1 {: RESULT = new NotOperator(noleft,noright,e1); :}
        |  FLOAT_LITERAL:n {: RESULT = new FloatLit(nleft,nright,n); :}
        |  CHAR_LITERAL:c {: RESULT = new CharLit(cleft,cright,c); :}
        |  pexp:p {: RESULT = p; :};
-
+//aumentar Precencia pra parenteses
 pexp ::=  LPAREN exp:e RPAREN {: RESULT = e; :}
        |  LBRACKET exp:e RBRACKET {: RESULT = e; :}
        |  NEW:n type:t LBRACKET exp:e RBRACKET {: RESULT = new New(nleft,nright,t,e); :}
