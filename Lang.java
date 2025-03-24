@@ -16,7 +16,7 @@ public class Lang {
         Symbol tk = lex.nextToken();
 
         while (tk.sym != LangParserSym.EOF) {
-            System.out.println("(" + tk.left + "," + tk.right + ")" + tk.sym);
+            System.out.println("(" + tk.left + "," + tk.right + ")" + LangParserSym.terminalNames[ tk.sym]);
             tk = lex.nextToken();
         }
         System.out.println(tk.toString());
@@ -36,7 +36,7 @@ public class Lang {
 
     public static void checkSyntax(LangParser p) throws IOException, Exception {
         Symbol presult;
-        try{
+        try {
         presult = p.parse();
         LNode root = (LNode) presult.value;
         if (presult != null) {

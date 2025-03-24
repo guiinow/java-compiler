@@ -150,7 +150,7 @@ escape = "'" \\[ntbr\\\\e'\"] "'"
 
 {white}        {/* While reading whites do nothing*/ }
 [^]            {/* Matches any char form the input*/
-                throw new Error("Illegal character <"+ yytext()+">"); }
+                throw new RuntimeException("Illegal character <"+ yytext()+">"); }
 }
 
 

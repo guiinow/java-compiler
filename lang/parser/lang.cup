@@ -94,6 +94,7 @@ non terminal Cmd cmd;
 non terminal List<Param> paramList; // Lista de parâmetros
 non terminal List<Type> typeList; // Lista de tipos
 non terminal LValue lvalue;
+non terminal List<Exp> lvaluelist;
 non terminal List<Exp> expList;     // Lista de expressões
 non terminal LoopCond loopCond;     // Condição de repetição em loops
 non terminal Exp exp;
@@ -109,13 +110,19 @@ non terminal Exp pexp;
   prioridade.
 */
 
+/*
+  Precencia e associatividade dos operadores.
+  Lista em ordem dos de menor prioridade para os de maior
+  prioridade.
+*/
+
 precedence left AND;
 precedence left EQ, NEQ;
 precedence nonassoc GT, LT;
 precedence left PLUS, SUB;
 precedence left MULT, DIV, MOD;
 precedence right NOT, SUB;
-precedence left LBRACKET, RBRACKET, LPAREN, RPAREN;
+precedence left RPAREN, RBRACKET;
 
 precedence nonassoc ELSE;
 
@@ -168,13 +175,16 @@ cmd ::=  IF:i LPAREN exp:e RPAREN stmtBlock:sb {: RESULT = new If(ileft,iright, 
        | PRINT:p exp:e SEMICOLON {: RESULT = new PrintCmd(pleft,pright, e); :}
        | RETURN:r expList:exps SEMICOLON {: RESULT = new ReturnCmd(rleft, rright, exps); :}
        | lvalue:lv ATBR exp:e SEMICOLON {: RESULT = new AssignCmd(lvleft, lvright, lv, e); :}
-       | ID:i LPAREN expList:e2 RPAREN LT lvalue:lv GT SEMICOLON{: RESULT = new CallCmd(ileft, iright, i, e2, lv); :}
+       | ID:i LPAREN expList:e2 RPAREN LT lvaluelist:ll GT SEMICOLON{: RESULT = new CallCmd(ileft, iright, i, e2, ll); :}
        | ID:i LPAREN expList:e2 RPAREN SEMICOLON{: RESULT = new CallCmd(ileft, iright, i, e2, null); :};
 
 
 lvalue ::= ID:id {: RESULT = new LValue(idleft, idright, id); :}
          | lvalue:lv LBRACKET exp:e RBRACKET {: RESULT = new ArrayAccess(lvleft, lvright, lv, e); :}
          | lvalue:lv DOT ID:id {: RESULT = new FieldAccess(lvleft, lvright, lv, id); :};
+
+lvaluelist ::= lvaluelist:ll COMMA lvalue:lv {: ll.add(lv); RESULT = ll; :}
+           | lvalue:lv {: List<Exp> l = new ArrayList<>(); l.add(lv); RESULT = l; :};
 
 paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(ileft, iright, i, t)); RESULT = pl; :}
            | ID:i DOUBLE_COLON type:t {: List<Param> p = new ArrayList<>(); p.add(new Param(ileft, iright, i, t)); RESULT = p; :}
@@ -217,11 +227,10 @@ sexp ::=  NOT:no sexp:e1 {: RESULT = new NotOperator(noleft,noright,e1); :}
        |  FLOAT_LITERAL:n {: RESULT = new FloatLit(nleft,nright,n); :}
        |  CHAR_LITERAL:c {: RESULT = new CharLit(cleft,cright,c); :}
        |  pexp:p {: RESULT = p; :};
-//aumentar Precencia pra parenteses
+
 pexp ::=  LPAREN exp:e RPAREN {: RESULT = e; :}
-       |  LBRACKET exp:e RBRACKET {: RESULT = e; :}
        |  NEW:n type:t LBRACKET exp:e RBRACKET {: RESULT = new New(nleft,nright,t,e); :}
        |  NEW:n type:t  {: RESULT = new New(nleft,nright,t, null); :}
        |  lvalue:e {: RESULT = e; :}
-       |  ID:i LPAREN expList:el RPAREN RBRACKET exp:e2 RBRACKET{: RESULT = new CallExp(ileft, iright, i, el, e2); :};
+       |  ID:i LPAREN expList:el RPAREN LBRACKET exp:e2 RBRACKET{: RESULT = new CallExp(ileft, iright, i, el, e2); :};
 
