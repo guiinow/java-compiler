@@ -1,3 +1,9 @@
-main()  {
-  x = "a";
+foo(): Int {
+  return 0;
+}
+
+
+main() {
+  x = foo()[0];
+  print x;
 }

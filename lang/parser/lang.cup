@@ -192,12 +192,14 @@ paramList ::= paramList:pl COMMA ID:i DOUBLE_COLON type:t {: pl.add(new Param(il
 
 block ::= LBRACE cmdList:cl RBRACE {: RESULT = new Block(clleft, clright, cl); :};
 
+//crias explist que nao recebe nada, que permite lista vazia
 
 expList ::=  expList:el COMMA exp:e {: el.add(e); RESULT = el; :}
-          |  exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
+       | {: RESULT = new ArrayList<Exp>(); :}
+       |  exp:e {: List<Exp> l = new ArrayList<>(); l.add(e); RESULT = l; :};
 
 loopCond ::= ID:i COLON exp:e {: RESULT = new LoopCond(ileft, iright, e); :}
-           | exp:e {: RESULT = new LoopCond(eleft, eright, e); :};
+       | exp:e {: RESULT = new LoopCond(eleft, eright, e); :};
 
 
 exp  ::= exp:e1 AND:an exp:e2 {: RESULT = new AndOperator(anleft,anright,e1,e2); :}
