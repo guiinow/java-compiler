@@ -1,19 +1,9 @@
 package typeCheckVisitor;
 
-import lang.ast.command.*;
-import lang.ast.decl.FunDef;
-import lang.ast.expr.*;
-import lang.ast.types.TyBool;
-import lang.ast.types.TyFloat;
-import lang.ast.types.TyInt;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Stack;
-
-import lang.ast.LVisitor;
-import lang.ast.Program;
 
 // Int
 // Char
@@ -207,7 +197,24 @@ private void collectType(ArrayList<FunDef> lf){
 
     }
 
-    public void visit(BinOp e){ }
+
+    public void visit(BinOp e) {
+            e.getLeft().accept(this);
+            e.getRight().accept(this);
+            VType td = stk.pop();
+            VType te = stk.pop();
+            if(td.getTypeValue() == CLTypes.INT &&
+                te.getTypeValue() == CLTypes.INT){
+                stk.push(VTyInt.newInt());
+                typeNode.put(e,stk.peek());
+            }else if(td.getTypeValue() == CLTypes.FLOAT &&
+                    te.getTypeValue() == CLTypes.FLOAT){
+                stk.push(VTyFloat.newFloat());
+                typeNode.put(e,stk.peek());
+            }else{
+                throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+            }
+    }
 
     public void visit(Sub  e){
          e.getLeft().accept(this);
@@ -282,23 +289,26 @@ private void collectType(ArrayList<FunDef> lf){
 
     }
 
-    public void visit(Lte e){
-         e.getLeft().accept(this);
-         e.getRight().accept(this);
-         VType td = stk.pop();
-         VType te = stk.pop();
-         if(td.getTypeValue() == CLTypes.INT &&
-            te.getTypeValue() == CLTypes.INT){
-            stk.push(VTyBool.newBool());
-            typeNode.put(e,stk.peek());
-         }else if(td.getTypeValue() == CLTypes.FLOAT &&
-                  te.getTypeValue() == CLTypes.FLOAT){
-            stk.push(VTyBool.newBool());
-            typeNode.put(e,stk.peek());
-         }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
-         }
-    }
+
+    //lang nao tem lte
+    
+    // public void visit(Lte e){
+    //      e.getLeft().accept(this);
+    //      e.getRight().accept(this);
+    //      VType td = stk.pop();
+    //      VType te = stk.pop();
+    //      if(td.getTypeValue() == CLTypes.INT &&
+    //         te.getTypeValue() == CLTypes.INT){
+    //         stk.push(VTyBool.newBool());
+    //         typeNode.put(e,stk.peek());
+    //      }else if(td.getTypeValue() == CLTypes.FLOAT &&
+    //               te.getTypeValue() == CLTypes.FLOAT){
+    //         stk.push(VTyBool.newBool());
+    //         typeNode.put(e,stk.peek());
+    //      }else{
+    //          throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+    //      }
+    // }
 
 
     public void visit(Lt e){
