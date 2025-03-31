@@ -5,8 +5,28 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import lang.ast.LVisitor;
+import lang.ast.Program;
+import lang.ast.command.AssignCmd;
+import lang.ast.command.CallCmd;
+import lang.ast.command.Cmd;
+import lang.ast.command.If;
+import lang.ast.command.IfElse;
+import lang.ast.command.IterateCmd;
+import lang.ast.command.PrintCmd;
 import lang.ast.command.ReadCmd;
 import lang.ast.command.ReturnCmd;
+import lang.ast.decl.FunDef;
+import lang.ast.expr.BinOp;
+import lang.ast.expr.BoolLit;
+import lang.ast.expr.CharLit;
+import lang.ast.expr.Exp;
+import lang.ast.expr.FloatLit;
+import lang.ast.expr.IntLit;
+import lang.ast.types.TyBool;
+import lang.ast.types.TyChar;
+import lang.ast.types.TyFloat;
+import lang.ast.types.TyInt;
 
 // Int
 // Char
@@ -36,6 +56,7 @@ public class TypeCheckVisitor extends LVisitor {
     private VType returnType; // Tipo esperado de retorno
     private boolean bodyRetun; // Algum comando de retorno ?
     private ArrayList<String> logError;
+    private final VTyError typeError = VTyError.newError();
 
     public TyChecker(){
         errors = new LinkedList<String>();
@@ -407,13 +428,10 @@ private void collectType(ArrayList<FunDef> lf){
         if (!(condType instanceof VTyBool)) {
             throw new TypeError("Loop condition must be of type bool");
         }
-        // Visit the body of the loop
         cmd.getBody().accept(this);
     }
 
     private VType checkCondition(Exp cond) {
-        // Implement your condition type checking logic here
-        // For simplicity, let's assume all conditions are boolean
         return VTyBool.newBool();
     }
 
@@ -435,7 +453,6 @@ private void collectType(ArrayList<FunDef> lf){
     }
 
     public void visit(ReadCmd cmd) {
-        // Assuming read can handle any type
         VType varType = localCtx.get(cmd.getVar().getName());
         if (varType == null) {
             logError.add("Variable " + cmd.getVar().getName() + " not declared");
@@ -451,6 +468,73 @@ private void collectType(ArrayList<FunDef> lf){
         }
         bodyRetun = true;
     }
+
+      @Override
+     public void visit(lt e) {
+         e.getLeft().accept(this);
+         e.getRight().accept(this);
+ 
+         VType tyr = stk.pop();
+         VType tyl = stk.pop();
+ 
+         if(tyr.match(typeInt) && tyl.match(typeInt)) {
+             stk.push(typeInt);
+             typeNode.put(e,stk.peek());
+         } else if(tyr.match(typeFloat) && tyl.match(typeFloat)) {
+             stk.push(typeFloat);
+             typeNode.put(e,stk.peek());
+         } else {
+             logError.add(
+                     e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
+                             + " não compatíveis com operador <(less than)."
+             );
+ 
+             stk.push(typeError);
+ 
+             throw new RuntimeException(e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
+                     + " não compatíveis com operador <(less than).");
+         }
+     }
+
+
+     @Override
+     public void visit(gt e) {
+         e.getLeft().accept(this);
+         e.getRight().accept(this);
+ 
+         VType tyr = stk.pop();
+         VType tyl = stk.pop();
+ 
+         if(tyr.match(typeInt) && tyl.match(typeInt)) {
+             stk.push(typeInt);
+             typeNode.put(e,stk.peek());
+         } else if(tyr.match(typeFloat) && tyl.match(typeFloat)) {
+             stk.push(typeFloat);
+             typeNode.put(e,stk.peek());
+         } else {
+             logError.add(
+                     e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
+                             + " não compatíveis com operador >(greater than)."
+             );
+ 
+             stk.push(typeError);
+ 
+             throw new RuntimeException(e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
+                     + " não compatíveis com operador >(greater than).");
+         }
+ 
+         if(td.getTypeValue() == CLTypes.INT &&
+                 te.getTypeValue() == CLTypes.INT){
+             stk.push(VTyBool.newBool());
+             typeNode.put(e,stk.peek());
+         }else if(td.getTypeValue() == CLTypes.FLOAT &&
+                 te.getTypeValue() == CLTypes.FLOAT){
+             stk.push(VTyBool.newBool());
+             typeNode.put(e,stk.peek());
+         }else{
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+         }
+     }
 
     @Override
     public void visit(IfElse cmd) {
