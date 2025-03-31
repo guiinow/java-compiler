@@ -10,6 +10,7 @@ import lang.ast.visitors.Interp;
 import lang.parser.LangLexer;
 import lang.parser.LangParser;
 import lang.parser.LangParserSym;
+import lang.ast.visitors.typeCheckVisitor.*;
 
 public class Lang {
     public static void runLexer(LangLexer lex) throws IOException, Exception {
@@ -37,17 +38,29 @@ public class Lang {
     public static void checkSyntax(LangParser p) throws IOException, Exception {
         Symbol presult;
         try {
-        presult = p.parse();
-        LNode root = (LNode) presult.value;
-        if (presult != null) {
-            System.out.println("accepted");
-        } else {
+            presult = p.parse();
+            LNode root = (LNode) presult.value;
+            if (presult != null) {
+                System.out.println("accepted");
+            } else {
+                System.out.println("rejected");
+            }
+        } catch (Exception e) {
             System.out.println("rejected");
         }
-    }catch(Exception e){
-         System.out.println("rejected");
     }
-    }
+    
+    // public static void checkTypes(LangParser p) throws IOException, Exception {
+    //     Symbol presult = p.parse();
+    //     LNode root = (LNode) presult.value;
+    //     if (root != null) {
+    //         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+    //         root.accept(typeCheckVisitor);
+    //         System.out.println("well typed");
+    //     } else {
+    //         System.out.println("not well typed, precisa imprimir a lista de erros");
+    //     }
+    // }
 
     public static void main(String args[]) throws IOException, Exception {
         int fname = 0;
@@ -62,6 +75,8 @@ public class Lang {
             LangLexer lex = new LangLexer(new FileReader(args[fname]));
             // Criando o parser (mais ainda não o executamos);
             LangParser p = new LangParser(lex);
+            //Cria o sistema de tipos
+            // TypeCheckVisitor typeCheckVisitormake = new TypeCheckVisitor();
             // Testando os argumentos para determinar o que fazer em seguida.
             if (args.length == 2 && args[0].equals("-lex")) {
                 runLexer(lex);
@@ -73,6 +88,11 @@ public class Lang {
             } else if (args.length == 2 && args[0].equals("-syn")) {
                 checkSyntax(p);
                 System.exit(0);
+            // } else if (args.length == 2 && args[0].equals("-ty")) {
+            //     checkTypes(p);
+            //     System.exit(0);
+            } else {
+                printHelp();
             }
         }
     }
@@ -83,5 +103,6 @@ public class Lang {
         System.out.println("   -lex  : Apenas lista os tokens.");
         System.out.println("   -i    : Interpreta o programa.");
         System.out.println("   -syn  : Apenas verifica a sintaxe.");
+        System.out.println("   -ty   : Apenas verifica os tipos e retorna 'well typed' ou a lista de erros.");
     }
 }

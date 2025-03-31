@@ -5,6 +5,9 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import lang.ast.command.ReadCmd;
+import lang.ast.command.ReturnCmd;
+
 // Int
 // Char
 // Bool
@@ -32,12 +35,14 @@ public class TypeCheckVisitor extends LVisitor {
     private Hashtable<Object, VType> typeNode;
     private VType returnType; // Tipo esperado de retorno
     private boolean bodyRetun; // Algum comando de retorno ?
+    private ArrayList<String> logError;
 
     public TyChecker(){
         errors = new LinkedList<String>();
         stk = new Stack<VType>();
         ctx = new Hashtable<String,TypeEntry>();
         typeNode = new Hashtable<Object,VType>();
+        logError = new ArrayList<String>();
     }
 
     public Hashtable<String,TypeEntry> getTypeCtx(){
@@ -53,11 +58,17 @@ public class TypeCheckVisitor extends LVisitor {
     }
 
     public void visit(Program p){
-         collectType(p.getFuncs());
-         for(FunDef f : p.getFuncs()){
-             localCtx = ctx.get(f.getFname()).localCtx;
-             f.accept(this);
-         }
+        collectType(p.getFuncs());
+         try{
+
+             for(FunDef f : p.getFuncs()){
+                 localCtx = ctx.get(f.getFname()).localCtx;
+                 f.accept(this);
+                }
+            } catch (RuntimeException e) {
+                logError.add(e.getLine() + ", " + e.getCol() + ")" + e.getMessage());
+            }
+            
     }
     
 private void collectType(ArrayList<FunDef> lf){
@@ -73,9 +84,12 @@ private void collectType(ArrayList<FunDef> lf){
                  e.localCtx.put( b.getVar().getName(), stk.peek());
               }
               f.getRet().accept(this);
-              VType[] v = new VType[typeln];
-              for(int i = typeln - 1; i >=0; i--){
-                  v[i] = stk.pop();
+            //   VType[] v = new VType[typeln];
+            //   for (int i = typeln - 1; i >= 0; i--) {
+            //       v[i] = stk.pop();
+            //   }
+              for (LType r : f.getRetrn()) {
+                r.accept(this);
               }
 
               e.ty =  new VTyFunc(v);
@@ -141,6 +155,22 @@ private void collectType(ArrayList<FunDef> lf){
                );
           }
           d.getBody().accept(this);
+    }
+
+    public void visit(AssignCmd cmd){
+          cmd.getExp().accept(this);
+          VType ty = stk.pop();
+          if(localCtx.get(cmd.getVar().getName()) == null){
+              localCtx.put(cmd.getVar().getName(),ty);
+          }else{
+            VType ty2 = localCtx.get(cmd.getVar().getName());
+            if (!ty2.match(ty)) {
+                logError.add("Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") tipo da var " +cmd.getVar().getName() + " incompativel");
+               throw new RuntimeException(
+               "Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") tipo da var " +cmd.getVar().getName() + " incompativel"
+               );
+            }
+          }
     }
 
     public void visit(If d){
@@ -289,28 +319,6 @@ private void collectType(ArrayList<FunDef> lf){
 
     }
 
-
-    //lang nao tem lte
-    
-    // public void visit(Lte e){
-    //      e.getLeft().accept(this);
-    //      e.getRight().accept(this);
-    //      VType td = stk.pop();
-    //      VType te = stk.pop();
-    //      if(td.getTypeValue() == CLTypes.INT &&
-    //         te.getTypeValue() == CLTypes.INT){
-    //         stk.push(VTyBool.newBool());
-    //         typeNode.put(e,stk.peek());
-    //      }else if(td.getTypeValue() == CLTypes.FLOAT &&
-    //               te.getTypeValue() == CLTypes.FLOAT){
-    //         stk.push(VTyBool.newBool());
-    //         typeNode.put(e,stk.peek());
-    //      }else{
-    //          throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
-    //      }
-    // }
-
-
     public void visit(Lt e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
@@ -362,7 +370,7 @@ private void collectType(ArrayList<FunDef> lf){
         }
     }
 
-    public void visit(FCall e){
+    public void visit(CallCmd e){
 
         for(Exp ex : e.getArgs()){
              ex.accept(this);
@@ -386,11 +394,12 @@ private void collectType(ArrayList<FunDef> lf){
     public void visit(IntLit e){   stk.push(VTyInt.newInt() ); typeNode.put(e,stk.peek());}
     public void visit(BoolLit e){  stk.push(VTyBool.newBool() ); typeNode.put(e,stk.peek());}
     public void visit(FloatLit e){ stk.push(VTyFloat.newFloat() ); typeNode.put(e,stk.peek());}
+    public void visit(CharLit e){ stk.push(VTyChar.newChar() ); typeNode.put(e,stk.peek());}
 
     public void visit(TyBool t){  stk.push(VTyBool.newBool() ); typeNode.put(t,stk.peek());}
     public void visit(TyInt t){   stk.push(VTyInt.newInt() ); typeNode.put(t,stk.peek());}
     public void visit(TyFloat t){ stk.push(VTyFloat.newFloat()); typeNode.put(t,stk.peek());}
-
+    public void visit(TyChar t){ stk.push(VTyChar.newChar()); typeNode.put(t,stk.peek());}
 
     @Override
     public void visit(IterateCmd cmd) {
@@ -418,6 +427,40 @@ private void collectType(ArrayList<FunDef> lf){
         if (cmd.getElseBlock() != null) {
             cmd.getElseBlock().accept(this);
         }
+    }
+
+
+    public void visit(Cmd p) {
+        p.accept(p);
+    }
+
+    public void visit(ReadCmd cmd) {
+        // Assuming read can handle any type
+        VType varType = localCtx.get(cmd.getVar().getName());
+        if (varType == null) {
+            logError.add("Variable " + cmd.getVar().getName() + " not declared");
+            throw new TypeError("Variable " + cmd.getVar().getName() + " not declared");
+        }
+    }
+
+    public void visit(ReturnCmd cmd) {
+        VType expType = checkExpression(cmd.getExp());
+        if (!expType.match(returnType)) {
+            logError.add("Return type mismatch");
+            throw new TypeError("Return type mismatch");
+        }
+        bodyRetun = true;
+    }
+
+    @Override
+    public void visit(IfElse cmd) {
+        VType condType = checkCondition(cmd.getCondition());
+        if (!(condType instanceof VTyBool)) {
+            logError.add("If condition must be of type bool");
+            throw new TypeError("If condition must be of type bool");
+        }
+        cmd.getThenBlock().accept(this);
+        cmd.getElseBlock().accept(this);
     }
 
     @Override
