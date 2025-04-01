@@ -16,6 +16,4 @@ package lang.ast.visitors.typeCheckVisitor;
      public boolean match(VType t) {
          return true;
      }
-
-     //teste
  }
