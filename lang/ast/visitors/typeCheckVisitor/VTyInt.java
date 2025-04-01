@@ -1,6 +1,6 @@
 package lang.ast.visitors.typeCheckVisitor;
 
-public class VTyInt extends Type {
+public class VTyInt extends VType {
 
     private static VTyInt instance = null;
     private VTyInt() {
@@ -12,7 +12,7 @@ public class VTyInt extends Type {
         }
         return instance;
     }
-    public boolean match(Type t) {
+    public boolean match(VType t) {
         return getTypeValue() == t.getTypeValue();
     }
 

@@ -1,4 +1,4 @@
-package lang.ast.visitors.tyCheckVisitor;
+package lang.ast.visitors.typeCheckVisitor;
  
  public class VTyError extends VType {
  

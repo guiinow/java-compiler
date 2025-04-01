@@ -1,6 +1,6 @@
 package lang.ast.visitors.typeCheckVisitor;
 
-public class VTyChar extends Type {
+public class VTyChar extends VType {
 
     private static VTyChar instance = null;
     private VTyChar() {
@@ -12,7 +12,7 @@ public class VTyChar extends Type {
         }
         return instance;
     }
-    public boolean match(Type t) {
+    public boolean match(VType t) {
         return getTypeValue() == t.getTypeValue();
     }
 
