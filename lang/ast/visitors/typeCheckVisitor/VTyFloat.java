@@ -1,4 +1,4 @@
-package typeCheckVisitor;
+package lang.ast.visitors.typeCheckVisitor;
 
 public class VTyFloat extends VType {
 

@@ -1,4 +1,4 @@
-package typeCheckVisitor;
+package lang.ast.visitors.typeCheckVisitor;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -7,43 +7,10 @@ import java.util.Stack;
 
 import lang.ast.LVisitor;
 import lang.ast.Program;
-import lang.ast.command.AssignCmd;
-import lang.ast.command.CallCmd;
-import lang.ast.command.Cmd;
-import lang.ast.command.If;
-import lang.ast.command.IfElse;
-import lang.ast.command.IterateCmd;
-import lang.ast.command.PrintCmd;
-import lang.ast.command.ReadCmd;
-import lang.ast.command.ReturnCmd;
-import lang.ast.decl.FunDef;
-import lang.ast.expr.BinOp;
-import lang.ast.expr.BoolLit;
-import lang.ast.expr.CharLit;
-import lang.ast.expr.Exp;
-import lang.ast.expr.FloatLit;
-import lang.ast.expr.IntLit;
-import lang.ast.types.TyBool;
-import lang.ast.types.TyChar;
-import lang.ast.types.TyFloat;
-import lang.ast.types.TyInt;
-
-// Int
-// Char
-// Bool
-// Float
-// true
-// false
-// if
-// else
-// data
-// iterate
-// read
-// print
-// return
-// null
-// gt > 
-// lt <
+import lang.ast.command.*;
+import lang.ast.decl.*;
+import lang.ast.expr.*;
+import lang.ast.types.*;
 
 public class TypeCheckVisitor extends LVisitor {
 
@@ -56,9 +23,9 @@ public class TypeCheckVisitor extends LVisitor {
     private VType returnType; // Tipo esperado de retorno
     private boolean bodyRetun; // Algum comando de retorno ?
     private ArrayList<String> logError;
-    private final VTyError typeError = VTyError.newError();
+    private final TypeError typeError = TypeError.newError();
 
-    public TyChecker(){
+    public TypeCheckVisitor(){
         errors = new LinkedList<String>();
         stk = new Stack<VType>();
         ctx = new Hashtable<String,TypeEntry>();
@@ -120,6 +87,7 @@ private void collectType(ArrayList<FunDef> lf){
          }
     }
 
+    //isso da certo pra um tipo de retorno, mas lang pode ter varios
     public void visit(FunDef d){
 
         d.getRet().accept(this);
@@ -132,6 +100,43 @@ private void collectType(ArrayList<FunDef> lf){
         if(!bodyRetun){
            throw new RuntimeException(
                "Erro de tipo (" + d.getLine() + ", " + d.getCol() + ")  função " + d.getFname() + " não retorna valor algum");
+        }
+    }
+
+    
+    @Override
+    public void visit(FunDefMultiReturn cmd) {
+        // Aceitar os argumentos da função
+        for (Exp ex : cmd.getArgs()) {
+            ex.accept(this);
+        }
+
+        // Obter os tipos dos argumentos
+        VType[] argTypes = new VType[cmd.getArgs().size()];
+        for (int i = cmd.getArgs().size() - 1; i >= 0; i--) {
+            argTypes[i] = stk.pop();
+        }
+
+        // Verificar se a função existe no contexto
+        TypeEntry funcEntry = ctx.get(cmd.getID());
+        if (funcEntry != null) {
+            VTyFunc funcType = (VTyFunc) funcEntry.ty;
+
+            // Verificar se os argumentos são compatíveis
+            if (!funcType.matchArgs(argTypes)) {
+                throw new RuntimeException("Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") chamada de função incompatível");
+            }
+
+            // Empilhar múltiplos retornos
+            VType[] returnTypes = funcType.getReturnTypes();
+            for (VType returnType : returnTypes) {
+                stk.push(returnType);
+            }
+
+            // Associar os tipos retornados ao nó
+            typeNode.put(cmd, returnTypes);
+        } else {
+            throw new RuntimeException("Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") chamada a função não declarada " + cmd.getID());
         }
     }
 
@@ -227,7 +232,7 @@ private void collectType(ArrayList<FunDef> lf){
           }
     }
 
-    public void visit(Return d){
+    public void visit(ReturnCmd d){
          d.getExp().accept(this);
          if(!stk.peek().match(returnType)){
             throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getCol() + ") Tipo de retorno incompatível.");
@@ -236,17 +241,17 @@ private void collectType(ArrayList<FunDef> lf){
          bodyRetun = true;
     }
 
-    public void visit(Print d){
-         d.getExp().accept(this);
-         VType td = stk.pop();
-         if(td.getTypeValue() == CLTypes.INT ||
-            td.getTypeValue() == CLTypes.FLOAT ||
-            td.getTypeValue() == CLTypes.BOOL){
-         }else{
-             throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getCol() + ") Operandos incompatíveis");
-         }
+    // public void visit(Print d){
+    //      d.getExp().accept(this);
+    //      VType td = stk.pop();
+    //      if(td.getTypeValue() == CLTypes.INT ||
+    //         td.getTypeValue() == CLTypes.FLOAT ||
+    //         td.getTypeValue() == CLTypes.BOOL){
+    //      }else{
+    //          throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getCol() + ") Operandos incompatíveis");
+    //      }
 
-    }
+    // }
 
 
     public void visit(BinOp e) {
@@ -267,6 +272,20 @@ private void collectType(ArrayList<FunDef> lf){
             }
     }
 
+    public void visit(ModOperator e) {
+        e.getLeft().accept(this);
+        e.getRight().accept(this);
+        VType td = stk.pop();
+        VType te = stk.pop();
+        if(td.getTypeValue() == CLTypes.INT &&
+            te.getTypeValue() == CLTypes.INT){
+            stk.push(VTyInt.newInt());
+            typeNode.put(e,stk.peek());
+        }else{
+            throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+        }
+    }
+
     public void visit(Sub  e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
@@ -285,7 +304,7 @@ private void collectType(ArrayList<FunDef> lf){
          }
     }
 
-    public void visit(Plus e){
+    public void visit(PlusOperator e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
          VType td = stk.pop();
@@ -303,7 +322,7 @@ private void collectType(ArrayList<FunDef> lf){
          }
     }
 
-    public void visit(Times e){
+    public void visit(MultOperator e){
             e.getLeft().accept(this);
          e.getRight().accept(this);
          VType td = stk.pop();
@@ -321,7 +340,7 @@ private void collectType(ArrayList<FunDef> lf){
          }
     }
 
-    public void visit(Div e){
+    public void visit(DivOperator e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
          VType td = stk.pop();
@@ -340,7 +359,7 @@ private void collectType(ArrayList<FunDef> lf){
 
     }
 
-    public void visit(Lt e){
+    public void visit(LtOperator e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
          VType td = stk.pop();
@@ -358,7 +377,7 @@ private void collectType(ArrayList<FunDef> lf){
          }
     }
 
-    public void visit(Eq e){
+    public void visit(EqOperator e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
          VType td = stk.pop();
@@ -448,10 +467,6 @@ private void collectType(ArrayList<FunDef> lf){
     }
 
 
-    public void visit(Cmd p) {
-        p.accept(p);
-    }
-
     public void visit(ReadCmd cmd) {
         VType varType = localCtx.get(cmd.getVar().getName());
         if (varType == null) {
@@ -470,7 +485,7 @@ private void collectType(ArrayList<FunDef> lf){
     }
 
       @Override
-     public void visit(lt e) {
+     public void visit(LtOperator e) {
          e.getLeft().accept(this);
          e.getRight().accept(this);
  
@@ -498,7 +513,7 @@ private void collectType(ArrayList<FunDef> lf){
 
 
      @Override
-     public void visit(gt e) {
+     public void visit(GtOperator e) {
          e.getLeft().accept(this);
          e.getRight().accept(this);
  
@@ -536,16 +551,7 @@ private void collectType(ArrayList<FunDef> lf){
          }
      }
 
-    @Override
-    public void visit(IfElse cmd) {
-        VType condType = checkCondition(cmd.getCondition());
-        if (!(condType instanceof VTyBool)) {
-            logError.add("If condition must be of type bool");
-            throw new TypeError("If condition must be of type bool");
-        }
-        cmd.getThenBlock().accept(this);
-        cmd.getElseBlock().accept(this);
-    }
+    
 
     @Override
     public void visit(PrintCmd cmd) {

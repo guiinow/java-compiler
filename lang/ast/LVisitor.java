@@ -23,7 +23,6 @@ public abstract class LVisitor {
 
     public abstract void visit(StmtBlock p);
 
-    public abstract void visit(Cmd p);
 
     public abstract void visit(Param p);
 
@@ -98,7 +97,6 @@ public abstract class LVisitor {
 
     public abstract void visit(TyNull t);
 
-    public abstract void visit(Type t);
 
     // delimiters
 

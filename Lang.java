@@ -50,17 +50,23 @@ public class Lang {
         }
     }
     
-    // public static void checkTypes(LangParser p) throws IOException, Exception {
-    //     Symbol presult = p.parse();
-    //     LNode root = (LNode) presult.value;
-    //     if (root != null) {
-    //         TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
-    //         root.accept(typeCheckVisitor);
-    //         System.out.println("well typed");
-    //     } else {
-    //         System.out.println("not well typed, precisa imprimir a lista de erros");
-    //     }
-    // }
+    public static void checkTypes(LangParser p) throws IOException, Exception {
+        try{
+
+            Symbol presult = p.parse();
+            LNode root = (LNode) presult.value;
+            if (root != null) {
+                TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+                root.accept(typeCheckVisitor);
+                System.out.println("well-typed");
+            } else {
+                System.out.println("ill-typed");
+            }
+        }catch(Exception e){
+            System.out.println("ill-typed");
+
+        }
+    }
 
     public static void main(String args[]) throws IOException, Exception {
         int fname = 0;
@@ -88,9 +94,9 @@ public class Lang {
             } else if (args.length == 2 && args[0].equals("-syn")) {
                 checkSyntax(p);
                 System.exit(0);
-            // } else if (args.length == 2 && args[0].equals("-ty")) {
-            //     checkTypes(p);
-            //     System.exit(0);
+            } else if (args.length == 2 && args[0].equals("-ty")) {
+                checkTypes(p);
+                System.exit(0);
             } else {
                 printHelp();
             }
