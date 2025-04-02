@@ -3,6 +3,7 @@ package lang.ast.visitors.typeCheckVisitor;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import lang.ast.LVisitor;
@@ -10,20 +11,21 @@ import lang.ast.Program;
 import lang.ast.command.*;
 import lang.ast.decl.*;
 import lang.ast.expr.*;
+import lang.ast.reserved.Data;
 import lang.ast.types.*;
 
 public class TypeCheckVisitor extends LVisitor {
 
 
     private LinkedList<String> errors;
-    private Stack<VType> stk;
-    private Hashtable<String,TypeEntry> ctx;
+    private Stack<VType> stk; // pilha de tipos)
+    private Hashtable<String,TypeEntry> ctx; //tabela de tabelas de typeEntry(tipo da func e tabela de tipos de contexto local)
     private Hashtable<String, VType> localCtx;
     private Hashtable<Object, VType> typeNode;
     private VType returnType; // Tipo esperado de retorno
     private boolean bodyRetun; // Algum comando de retorno ?
     private ArrayList<String> logError;
-    private final TypeError typeError = TypeError.newError();
+    private final TypeError typeError = new TypeError("Erro de tipo");
 
     public TypeCheckVisitor(){
         errors = new LinkedList<String>();
@@ -54,22 +56,23 @@ public class TypeCheckVisitor extends LVisitor {
                  f.accept(this);
                 }
             } catch (RuntimeException e) {
-                logError.add(e.getLine() + ", " + e.getCol() + ")" + e.getMessage());
+                logError.add(p.getLine() + ", " + p.getColumn() + ")" + e.getMessage());
             }
             
     }
     
-private void collectType(ArrayList<FunDef> lf){
-        for(FunDef f : lf){
+private void collectType(List<FunDef> lf){
+        for(FunDef f : lf
+        ){
 
               TypeEntry e = new TypeEntry();
               e.sym = f.getFname();
               e.localCtx = new Hashtable<String,VType>();
 
               int typeln = f.getParams().size() + 1;
-              for(Bind b : f.getParams()){
+              for(Param b : f.getParams()){
                  b.getType().accept(this);
-                 e.localCtx.put( b.getVar().getName(), stk.peek());
+                 e.localCtx.put( b.getVar().getClass(), stk.peek());
               }
               f.getRet().accept(this);
             //   VType[] v = new VType[typeln];
@@ -87,96 +90,112 @@ private void collectType(ArrayList<FunDef> lf){
          }
     }
 
+    @Override
+    public void visist(Data r){
+        for(Decl f : d.getFields()){
+            f.accept(this);
+        }
+        TypeEntry e = new TypeEntry();
+        e.sym = d.getTypeName();
+        e.localCtx = new Hashtable<String,VType>();
+        for(Decl f : d.getFields()){
+            f.accept(this);
+            e.localCtx.put(f.getClass(),stk.peek());
+        }
+        ctx.put(d.getTypeName(),e);
+    }
+
+
     //isso da certo pra um tipo de retorno, mas lang pode ter varios
     public void visit(FunDef d){
 
         d.getRet().accept(this);
         returnType = stk.pop();
-        for(Bind b: d.getParams()){
+        for(Param b: d.getParams()){
            b.accept(this);
         }
         bodyRetun = false;
         d.getBody().accept(this);
         if(!bodyRetun){
            throw new RuntimeException(
-               "Erro de tipo (" + d.getLine() + ", " + d.getCol() + ")  função " + d.getFname() + " não retorna valor algum");
+               "Erro de tipo (" + d.getLine() + ", " + d.getColumn() + ")  função " + d.getFname() + " não retorna valor algum");
         }
     }
 
     
-    @Override
-    public void visit(FunDefMultiReturn cmd) {
-        // Aceitar os argumentos da função
-        for (Exp ex : cmd.getArgs()) {
-            ex.accept(this);
-        }
+    // @Override
+    // public void visit(FunDefMultiReturn cmd) {
+    //     // Aceitar os argumentos da função
+    //     for (Exp ex : cmd.getArgs()) {
+    //         ex.accept(this);
+    //     }
 
-        // Obter os tipos dos argumentos
-        VType[] argTypes = new VType[cmd.getArgs().size()];
-        for (int i = cmd.getArgs().size() - 1; i >= 0; i--) {
-            argTypes[i] = stk.pop();
-        }
+    //     // Obter os tipos dos argumentos
+    //     VType[] argTypes = new VType[cmd.getArgs().size()];
+    //     for (int i = cmd.getArgs().size() - 1; i >= 0; i--) {
+    //         argTypes[i] = stk.pop();
+    //     }
 
-        // Verificar se a função existe no contexto
-        TypeEntry funcEntry = ctx.get(cmd.getID());
-        if (funcEntry != null) {
-            VTyFunc funcType = (VTyFunc) funcEntry.ty;
+    //     // Verificar se a função existe no contexto
+    //     TypeEntry funcEntry = ctx.get(cmd.getID());
+    //     if (funcEntry != null) {
+    //         VTyFunc funcType = (VTyFunc) funcEntry.ty;
 
-            // Verificar se os argumentos são compatíveis
-            if (!funcType.matchArgs(argTypes)) {
-                throw new RuntimeException("Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") chamada de função incompatível");
-            }
+    //         // Verificar se os argumentos são compatíveis
+    //         if (!funcType.matchArgs(argTypes)) {
+    //             throw new RuntimeException("Erro de tipo (" + cmd.getLine() + ", " + cmd.getColumn() + ") chamada de função incompatível");
+    //         }
 
-            // Empilhar múltiplos retornos
-            VType[] returnTypes = funcType.getReturnTypes();
-            for (VType returnType : returnTypes) {
-                stk.push(returnType);
-            }
+    //         // Empilhar múltiplos retornos
+    //         VType[] returnTypes = funcType.getReturnTypes();
+    //         for (VType returnType : returnTypes) {
+    //             stk.push(returnType);
+    //         }
 
-            // Associar os tipos retornados ao nó
-            typeNode.put(cmd, returnTypes);
-        } else {
-            throw new RuntimeException("Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") chamada a função não declarada " + cmd.getID());
-        }
-    }
+    //         // Associar os tipos retornados ao nó
+    //         typeNode.put(cmd, returnTypes);
+    //     } else {
+    //         throw new RuntimeException("Erro de tipo (" + cmd.getLine() + ", " + cmd.getColumn() + ") chamada a função não declarada " + cmd.getID());
+    //     }
+    // }
 
-    public void visit(Bind  d){
+    public void visit(Param  d){
 
         d.getType().accept(this);
 
         d.getVar().accept(this);
     }
 
-    public void visit(CSeq d){
+    // public void visit(CSeq d){
 
-          d.getLeft().accept(this);
+    //       d.getLeft().accept(this);
 
-          d.getRight().accept(this);
+    //       d.getRight().accept(this);
 
-    }
+    // }
 
-    public void visit(CAttr d){
-          d.getExp().accept(this);
-          if(localCtx.get(d.getVar().getName()) == null){
-              localCtx.put(d.getVar().getName(),stk.pop());
-          }else{
-            VType ty = localCtx.get(d.getVar().getName());
-            if(!ty.match(stk.pop())){
-               throw new RuntimeException(
-               "Erro de tipo (" + d.getLine() + ", " + d.getCol() + ") tipo da var " +d.getVar().getName() + " incompativel"
-               );
-            }
-          }
-    }
+    // public void visit(CAttr d){
+    //       d.getExp().accept(this);
+    //       if(localCtx.get(d.getVar().getClass()) == null){
+    //           localCtx.put(d.getVar().getClass(),stk.pop());
+    //       }else{
+    //         VType ty = localCtx.get(d.getVar().getClass());
+    //         if(!ty.match(stk.pop())){
+    //            throw new RuntimeException(
+    //            "Erro de tipo (" + d.getLine() + ", " + d.getColumn() + ") tipo da var " +d.getVar().getClass() + " incompativel"
+    //            );
+    //         }
+    //       }
+    // }
 
-    public void visit(Loop d){
+    public void visit(LoopCond d){
 
           d.getCond().accept(this);
           VType tyc = stk.pop();
           if(! (tyc.getTypeValue() == CLTypes.BOOL)){
               throw new RuntimeException(
                "Erro de tipo (" + d.getLine() + ", " +
-                                  d.getCol() +
+                                  d.getColumn() +
                                   ") condição do laço deve ser bool"
                );
           }
@@ -186,14 +205,14 @@ private void collectType(ArrayList<FunDef> lf){
     public void visit(AssignCmd cmd){
           cmd.getExp().accept(this);
           VType ty = stk.pop();
-          if(localCtx.get(cmd.getVar().getName()) == null){
-              localCtx.put(cmd.getVar().getName(),ty);
+          if(localCtx.get(cmd.getVar().getClass()) == null){
+              localCtx.put(cmd.getVar().getClass(),ty);
           }else{
-            VType ty2 = localCtx.get(cmd.getVar().getName());
+            VType ty2 = localCtx.get(cmd.getVar().getClass());
             if (!ty2.match(ty)) {
-                logError.add("Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") tipo da var " +cmd.getVar().getName() + " incompativel");
+                logError.add("Erro de tipo (" + cmd.getLine() + ", " + cmd.getColumn() + ") tipo da var " +cmd.getVar().getClass() + " incompativel");
                throw new RuntimeException(
-               "Erro de tipo (" + cmd.getLine() + ", " + cmd.getCol() + ") tipo da var " +cmd.getVar().getName() + " incompativel"
+               "Erro de tipo (" + cmd.getLine() + ", " + cmd.getColumn() + ") tipo da var " +cmd.getVar().getClass() + " incompativel"
                );
             }
           }
@@ -206,7 +225,7 @@ private void collectType(ArrayList<FunDef> lf){
           if(!(tyc.getTypeValue() == CLTypes.BOOL)){
               throw new RuntimeException(
                "Erro de tipo (" + d.getLine() + ", " +
-                                  d.getCol() +
+                                  d.getColumn() +
                                   ") condição do teste deve ser bool"
                );
           }
@@ -235,23 +254,23 @@ private void collectType(ArrayList<FunDef> lf){
     public void visit(ReturnCmd d){
          d.getExp().accept(this);
          if(!stk.peek().match(returnType)){
-            throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getCol() + ") Tipo de retorno incompatível.");
+            throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getColumn() + ") Tipo de retorno incompatível.");
          }
          typeNode.put(d,stk.pop());
          bodyRetun = true;
     }
 
-    // public void visit(Print d){
-    //      d.getExp().accept(this);
-    //      VType td = stk.pop();
-    //      if(td.getTypeValue() == CLTypes.INT ||
-    //         td.getTypeValue() == CLTypes.FLOAT ||
-    //         td.getTypeValue() == CLTypes.BOOL){
-    //      }else{
-    //          throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getCol() + ") Operandos incompatíveis");
-    //      }
+    public void visit(PrintCmd d){
+         d.getExp().accept(this);
+         VType td = stk.pop();
+         if(td.getTypeValue() == CLTypes.INT ||
+            td.getTypeValue() == CLTypes.FLOAT ||
+            td.getTypeValue() == CLTypes.BOOL){
+         }else{
+             throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getColumn() + ") Operandos incompatíveis");
+         }
 
-    // }
+    }
 
 
     public void visit(BinOp e) {
@@ -268,7 +287,7 @@ private void collectType(ArrayList<FunDef> lf){
                 stk.push(VTyFloat.newFloat());
                 typeNode.put(e,stk.peek());
             }else{
-                throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+                throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
             }
     }
 
@@ -282,11 +301,11 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyInt.newInt());
             typeNode.put(e,stk.peek());
         }else{
-            throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+            throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
         }
     }
 
-    public void visit(Sub  e){
+    public void visit(MinusOperator  e){
          e.getLeft().accept(this);
          e.getRight().accept(this);
          VType td = stk.pop();
@@ -300,7 +319,7 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyFloat.newFloat());
             typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
     }
 
@@ -318,7 +337,7 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyFloat.newFloat());
             typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
     }
 
@@ -336,7 +355,7 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyFloat.newFloat());
             typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
     }
 
@@ -354,7 +373,7 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyFloat.newFloat());
             typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
 
     }
@@ -373,7 +392,7 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyBool.newBool());
             typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
     }
 
@@ -395,15 +414,15 @@ private void collectType(ArrayList<FunDef> lf){
             stk.push(VTyBool.newBool());
             typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
     }
 
 
-    public void visit(Var e){
-        VType ty = localCtx.get(e.getName());
+    public void visit(LValue e){
+        VType ty = localCtx.get(e.getClass());
         if(ty == null){
-           throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") variavel não declarada: " + e.getName());
+           throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") variavel não declarada: " + e.getClass());
         }else{
           stk.push(ty);
           typeNode.put(e,stk.peek());
@@ -422,12 +441,12 @@ private void collectType(ArrayList<FunDef> lf){
         TypeEntry tyd = ctx.get(e.getID() );
         if(tyd != null ){
            if(!((VTyFunc)tyd.ty).matchArgs(vt)){
-               throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") chamada de função incompatível ");
+               throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") chamada de função incompatível ");
            }
            stk.push(((VTyFunc)tyd.ty).getReturnType() );
            typeNode.put(e,stk.peek());
         }else{
-           throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") chamada a função não declarada " + e.getID());
+           throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") chamada a função não declarada " + e.getID());
         }
     }
 
@@ -454,62 +473,62 @@ private void collectType(ArrayList<FunDef> lf){
         return VTyBool.newBool();
     }
 
-    @Override
-    public void visit(If cmd) {
-        VType condType = checkCondition(cmd.getCondition());
-        if (!(condType instanceof VTyBool)) {
-            throw new TypeError("If condition must be of type bool");
-        }
-        cmd.getThenBlock().accept(this);
-        if (cmd.getElseBlock() != null) {
-            cmd.getElseBlock().accept(this);
-        }
-    }
+    // @Override
+    // public void visit(If cmd) {
+    //     VType condType = checkCondition(cmd.getCondition());
+    //     if (!(condType instanceof VTyBool)) {
+    //         throw new TypeError("If condition must be of type bool");
+    //     }
+    //     cmd.getThenBlock().accept(this);
+    //     if (cmd.getElseBlock() != null) {
+    //         cmd.getElseBlock().accept(this);
+    //     }
+    // }
 
 
     public void visit(ReadCmd cmd) {
-        VType varType = localCtx.get(cmd.getVar().getName());
+        VType varType = localCtx.get(cmd.getLValue().getClass());
         if (varType == null) {
-            logError.add("Variable " + cmd.getVar().getName() + " not declared");
-            throw new TypeError("Variable " + cmd.getVar().getName() + " not declared");
+            logError.add("Variable " + cmd.getLValue().getClass() + " not declared");
+            throw new RuntimeException("Variable " + cmd.getLValue().getClass() + " not declared");
         }
     }
 
-    public void visit(ReturnCmd cmd) {
-        VType expType = checkExpression(cmd.getExp());
-        if (!expType.match(returnType)) {
-            logError.add("Return type mismatch");
-            throw new TypeError("Return type mismatch");
-        }
-        bodyRetun = true;
-    }
+    // public void visit(ReturnCmd cmd) {
+    //     VType expType = checkExpression(cmd.getExp());
+    //     if (!expType.match(returnType)) {
+    //         // logError.add("Return type mismatch");
+    //         throw new Exception("Return type mismatch");
+    //     }
+    //     bodyRetun = true;
+    // }
 
-      @Override
-     public void visit(LtOperator e) {
-         e.getLeft().accept(this);
-         e.getRight().accept(this);
+    //   @Override
+    //  public void visit(LtOperator e) {
+    //      e.getLeft().accept(this);
+    //      e.getRight().accept(this);
  
-         VType tyr = stk.pop();
-         VType tyl = stk.pop();
+    //      VType tyr = stk.pop();
+    //      VType tyl = stk.pop();
  
-         if(tyr.match(typeInt) && tyl.match(typeInt)) {
-             stk.push(typeInt);
-             typeNode.put(e,stk.peek());
-         } else if(tyr.match(typeFloat) && tyl.match(typeFloat)) {
-             stk.push(typeFloat);
-             typeNode.put(e,stk.peek());
-         } else {
-             logError.add(
-                     e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
-                             + " não compatíveis com operador <(less than)."
-             );
+    //      if(tyr.match(typeInt) && tyl.match(typeInt)) {
+    //          stk.push(typeInt);
+    //          typeNode.put(e,stk.peek());
+    //      } else if(tyr.match(typeFloat) && tyl.match(typeFloat)) {
+    //          stk.push(typeFloat);
+    //          typeNode.put(e,stk.peek());
+    //      } else {
+    //          logError.add(
+    //                  e.getLine() + ", " + e.getColumn() + ": Tipos " + tyl + " e " + tyr
+    //                          + " não compatíveis com operador <(less than)."
+    //          );
  
-             stk.push(typeError);
+    //          stk.push(typeError);
  
-             throw new RuntimeException(e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
-                     + " não compatíveis com operador <(less than).");
-         }
-     }
+    //          throw new RuntimeException(e.getLine() + ", " + e.getColumn() + ": Tipos " + tyl + " e " + tyr
+    //                  + " não compatíveis com operador <(less than).");
+    //      }
+    //  }
 
 
      @Override
@@ -520,21 +539,21 @@ private void collectType(ArrayList<FunDef> lf){
          VType tyr = stk.pop();
          VType tyl = stk.pop();
  
-         if(tyr.match(typeInt) && tyl.match(typeInt)) {
-             stk.push(typeInt);
+         if(tyr.match( tyr) && tyl.match(tyl)) {
+             stk.push(VTyInt.newInt());
              typeNode.put(e,stk.peek());
-         } else if(tyr.match(typeFloat) && tyl.match(typeFloat)) {
-             stk.push(typeFloat);
+         } else if(tyr.match(tyr) && tyl.match(tyl)) {
+             stk.push(VTyFloat.newFloat());
              typeNode.put(e,stk.peek());
          } else {
              logError.add(
-                     e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
+                     e.getLine() + ", " + e.getColumn() + ": Tipos " + tyl + " e " + tyr
                              + " não compatíveis com operador >(greater than)."
              );
  
              stk.push(typeError);
  
-             throw new RuntimeException(e.getLine() + ", " + e.getCol() + ": Tipos " + tyl + " e " + tyr
+             throw new RuntimeException(e.getLine() + ", " + e.getColumn() + ": Tipos " + tyl + " e " + tyr
                      + " não compatíveis com operador >(greater than).");
          }
  
@@ -547,21 +566,113 @@ private void collectType(ArrayList<FunDef> lf){
              stk.push(VTyBool.newBool());
              typeNode.put(e,stk.peek());
          }else{
-             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getCol() + ") Operandos incompatíveis");
+             throw new RuntimeException("Erro de tipo (" + e.getLine() + ", " + e.getColumn() + ") Operandos incompatíveis");
          }
      }
 
     
 
-    @Override
-    public void visit(PrintCmd cmd) {
-        VType expType = checkExpression(cmd.getExp());
-        // Assuming print can handle any type
-    }
+    // @Override
+    // public void visit(PrintCmd cmd) {
+    //     VType expType = checkExpression(cmd.getExp());
+    //     // Assuming print can handle any type
+    // }
 
     private VType checkExpression(Exp exp) {
         // Implement your expression type checking logic here
         // For simplicity, let's assume all expressions are int
         return VTyInt.newInt();
     }
+
+    @Override
+    public void visit(Decl p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(CallExp c) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(New n) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(Block p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(StmtBlock p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(IfElse p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(ArrayAccess p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(FieldAccess p) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(NeqOperator o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(AndOperator o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(NotOperator o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(UnaryMinusOperator o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(NullLit o) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(TyId t) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+    @Override
+    public void visit(TyNull t) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+    }
+
+   
 }

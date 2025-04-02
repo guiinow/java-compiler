@@ -1,6 +1,6 @@
 package lang.ast.visitors.typeCheckVisitor;
 
-import lang.nodes.*;
+import lang.ast.*;
 
 public abstract class VType {
      public short type;

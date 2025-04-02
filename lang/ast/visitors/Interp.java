@@ -9,7 +9,6 @@ import java.util.*;
 import lang.ast.types.*;
 import lang.ast.command.*;
 import lang.ast.decl.*;
-import lang.ast.eof.*;
 
 public class Interp extends LVisitor {
 
@@ -248,11 +247,11 @@ public class Interp extends LVisitor {
     System.out.println("Tipo: " + t.getTypeName());
     stk.push(t.getTypeName());
   }
-  @Override
-  public void visit(Type t) {
-    System.out.println("Tipo: " + t.getTypeName());
-    stk.push(t.getTypeName());
-  }
+  // @Override
+  // public void visit(Type t) {
+  //   System.out.println("Tipo: " + t.getTypeName());
+  //   stk.push(t.getTypeName());
+  // }
   @Override
   public void visit(TyId t) {
     System.out.println("Tipo: " + t.getTypeName());
@@ -293,10 +292,10 @@ public class Interp extends LVisitor {
     stk.push(p.getCommands());
   }
 
-  @Override
-  public void visit(Cmd o) {
+  // @Override
+  // public void visit(Cmd o) {
 
-  }
+  // }
   @Override
   public void visit(StmtBlock o) {
 
@@ -354,8 +353,5 @@ public class Interp extends LVisitor {
   public void visit(IterateCmd r) {
   }
 
-  @Override
-  public void visit(EOF e) {
-  };
 
 }

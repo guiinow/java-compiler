@@ -2,7 +2,6 @@ package lang.ast;
 
 import lang.ast.command.*;
 import lang.ast.decl.*;
-import lang.ast.eof.*;
 import lang.ast.expr.*;
 import lang.ast.reserved.*;
 import lang.ast.types.*;
@@ -114,5 +113,4 @@ public abstract class LVisitor {
 
 
     // EOF
-    public abstract void visit(EOF e);
 }
