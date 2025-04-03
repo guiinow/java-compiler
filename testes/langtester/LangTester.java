@@ -53,102 +53,116 @@ public class LangTester{
 
    public static void synTests(String cmd){
        //String cmd = "./lang.sh -syn";
-       List<String> accfails = new LinkedList<String>();
-       List<String> rejfails = new LinkedList<String>();
        try{
-          int passed = 0, failed = 0, maxfname;
-          Runtime rn = Runtime.getRuntime();
+          CorrectContext crr = new CorrectContext();
           String accpth = mkPath(new String[]{"sintaxe","certo"});
           String rejpth = mkPath(new String[]{"sintaxe","errado"});
           File[] accfs = list_files(accpth);
           File[] rejfs = list_files(rejpth);
-          maxfname = maxNameLen(5,accfs);
-          byte[] sepbuff  = dotedArr(maxfname,'.');
-          Process p;
-          String out;
-          BufferedReader procr;
-
-          if(accfs == null){
-             System.out.println("Nao ha arquivos para processar em " + accpth);
-          }else{
-               System.out.println("Processando casos de teste em testes/sintaxe/certo/");
-               for(File fsrc : accfs){
-                  System.out.print(fsrc.getName());
-                  System.out.write(sepbuff,0,maxfname - fsrc.getName().length());
-                  System.out.print("[");
-                  p = rn.exec(cmd +" " + fsrc.getAbsolutePath());
-                  out = new BufferedReader(new InputStreamReader(p.getInputStream())).readLine();
-                  if(out.equals("accepted")){
-                      System.out.println(" OK ]");
-                      passed++;
-                  }else{
-                      System.out.println("FAIL]");
-                      accfails.add(fsrc.getName());
-                      failed++;
-                  }
-               }
-          }
-          if(rejfs == null){
-             System.out.println("Nao ha arquivos para processar em " + rejpth);
-          }else{
-              System.out.println("Processando casos de teste em " + rejpth);
-              for(File fsrc : rejfs){
-                  System.out.print(fsrc.getName());
-                  System.out.write(sepbuff,0,maxfname - fsrc.getName().length());
-                  System.out.print("[");
-                  p = rn.exec(cmd +" " + fsrc.getAbsolutePath());
-                  procr = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                  out = procr.readLine();
-                  boolean rej = false;
-                  while(out != null && !rej){
-                    rej = out.equals("rejected");
-                    out = procr.readLine();
-                  }
-                  if(rej){
-                      System.out.println(" OK ]");
-                      passed++;
-                  }else{
-                      System.out.println("FAIL]");
-                      rejfails.add(fsrc.getName());
-                      failed++;
-                  }
-              }
-              reportSyn(passed, failed, accfails, rejfails);
-          }
+          crr.createReport("Os seguintes arquivos deveiam ter sido aceitos:");
+          processFolder(cmd,accpth,accfs,"accepted",crr);
+          crr.createReport("Os seguintes arquivos deveiam ter sido rejeitados:");
+          processFolder(cmd,rejpth,rejfs,"rejected",crr);
+          crr.report();
       }catch(Exception e){
           e.printStackTrace();
       }
    }
 
-   public static void reportSyn(int pass, int fails, List<String> accf, List<String> rejf ){
-        if(accf.size() > 0){
-            System.out.println("Os seguintes arquivos deviam ter sido aceitos:");
-            for(String s : accf){
-                 System.out.println("    " + s);
-            }
-        }
-        if(rejf.size() > 0){
-            System.out.println("Os seguintes arquivos deviam ter sido rejeitados:");
-            for(String s : rejf){
-                 System.out.println("    " + s);
-            }
-        }
-        if(pass > 1){
-            System.out.println(pass + " casos de testes passaram");
-        }else if(pass == 1){
-            System.out.println("1 caso de teste passou");
-        }else{
-            System.out.println("Nenhum caso de teste passou :-(");
-        }
 
-        if(fails > 1){
-            System.out.println(fails + " casos de testes falharam");
-        }else if(fails == 1){
-            System.out.println("1 caso de teste falhou");
-        }else{
-            System.out.println("Nenhum caso de teste falhou :-)");
-        }
+   private static void processFolder(String cmd, String baseDir, File[] pth, String expected, CorrectContext crr)
+   throws IOException{
+       int maxfname = maxNameLen(5,pth);
+       byte[] sepbuff  = dotedArr(maxfname,'.');
+       Process p;
+       Runtime rn = Runtime.getRuntime();
+       String out;
+       BufferedReader procr;
+       if(pth == null){
+             System.out.println("Nao ha arquivos para processar em " +  baseDir);
+       }else{
+             System.out.println("Processando casos de teste em " +  baseDir);
+             for(File fsrc : pth){
+                  System.out.print(fsrc.getName());
+                  System.out.write(sepbuff,0,maxfname - fsrc.getName().length());
+                  System.out.print("[");
+                  p = rn.exec(cmd +" " + fsrc.getPath());
+                  procr = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                  boolean found = false;
+                  out = procr.readLine();
+                  while(out != null && !found){
+                    found = out.equals(expected);
+                    out = procr.readLine();
+                  }
+                  if(found){
+                      System.out.println(" OK ]");
+                      crr.passed++;
+                  }else{
+                      System.out.println("FAIL]");
+                      crr.reject(fsrc.getName());
+                      crr.failed++;
+                  }
+            }
+       }
    }
+
+   public static void typeTests(String cmd){
+       //String cmd = "./lang.sh -syn";
+
+       try{
+          CorrectContext crr = new CorrectContext();
+          String accpthsimp = mkPath(new String[]{"types","simple"});
+          String accpthfunc = mkPath(new String[]{"types","function"});
+          String accpthfull = mkPath(new String[]{"types","full"});
+          String rejpth = mkPath(new String[]{"types","errado"});
+          File[] simplefs = list_files(accpthsimp);
+          File[] funcfs = list_files(accpthfunc);
+          File[] fullfs = list_files(accpthfull);
+          File[] rejfs = list_files(rejpth);
+          crr.createReport("Os seguintes arquivos deveiam ter sido aceitos:");
+          processFolder(cmd,accpthsimp,simplefs,"well-typed",crr);
+          processFolder(cmd,accpthfunc,funcfs,"well-typed",crr);
+          processFolder(cmd,accpthfunc,fullfs,"well-typed",crr);
+          crr.createReport("Os seguintes arquivos deveiam ter sido rejeitados:");
+          processFolder(cmd,rejpth,rejfs,"ill-typed",crr);
+          crr.report();
+
+      }catch(Exception e){
+          e.printStackTrace();
+      }
+   }
+
+
+
+   // public static void reportSyn(CorrectContext crr, String acceitos){
+   //      if(crr.accs.size() > 0){
+   //          System.out.println("Os seguintes arquivos deviam ter sido aceitos:");
+   //          for(String s : crr.accs){
+   //               System.out.println("    " + s);
+   //          }
+   //      }
+   //      if(crr.rejs.size() > 0){
+   //          System.out.println("Os seguintes arquivos deviam ter sido rejeitados:");
+   //          for(String s : crr.rejs){
+   //               System.out.println("    " + s);
+   //          }
+   //      }
+   //      if(crr.passed > 1){
+   //          System.out.println(crr.passed + " casos de testes passaram");
+   //      }else if(crr.passed == 1){
+   //          System.out.println("1 caso de teste passou");
+   //      }else{
+   //          System.out.println("Nenhum caso de teste passou :-(");
+   //      }
+   //
+   //      if(crr.failed > 1){
+   //          System.out.println(crr.failed + " casos de testes falharam");
+   //      }else if(crr.failed == 1){
+   //          System.out.println("1 caso de teste falhou");
+   //      }else{
+   //          System.out.println("Nenhum caso de teste falhou :-)");
+   //      }
+   // }
 
 
 
@@ -340,6 +354,7 @@ public class LangTester{
        BufferedReader confs = new BufferedReader( new FileReader("conf.txt"));
        String cmd1 = confs.readLine();
        String cmd2 = confs.readLine();
+       String cmd3 = confs.readLine();
        confs.close();
        //System.out.println(cmd1);
        //System.out.println(cmd2);
@@ -352,6 +367,8 @@ public class LangTester{
          synTests(cmd1);
        }else if(args[0].equals("-sem")){
          semTests(cmd2);
+       }else if(args[0].equals("-type")){
+         typeTests(cmd3);
        }else{
           System.out.println("Chame com -syn ou -sem ou sem parâmetros.");
        }
