@@ -47,12 +47,13 @@ public class TypeCheckVisitor extends LVisitor {
        return typeNode.get(node);
     }
 
-    public void visit(Program p){
+    public void visit(Program p) {
         collectType(p.getFuncs());
          try{
 
              for(FunDef f : p.getFuncs()){
-                 localCtx = ctx.get(f.getFname()).localCtx;
+                // localCtx = ctx.get(f.getFname()).localCtx;
+
                  f.accept(this);
                 }
             } catch (RuntimeException e) {
@@ -101,9 +102,10 @@ public class TypeCheckVisitor extends LVisitor {
     //isso da certo pra um tipo de retorno, mas lang pode ter varios
     public void visit(FunDef d){
 
-        d.getRetrn();
-        d.accept(this);
-        returnType = stk.pop();
+        for(Type ty: d.getRetrn()){
+            ty.accept(this);
+            returnType = stk.pop();
+        }
         for(Param b: d.getParams()){
            b.accept(this);
         }
@@ -156,7 +158,6 @@ public class TypeCheckVisitor extends LVisitor {
 
         d.getType().accept(this);
 
-        d.accept(this);
     }
 
     //não implementado
@@ -246,13 +247,14 @@ public class TypeCheckVisitor extends LVisitor {
     }
 
 
-    public void visit(PrintCmd d){
+    public void visit(PrintCmd d) {
+        System.out.println("elton é ruim");
          d.getExp().accept(this);
          VType td = stk.pop();
          if(td.getTypeValue() == CLTypes.INT ||
             td.getTypeValue() == CLTypes.FLOAT ||
             td.getTypeValue() == CLTypes.BOOL){
-         }else{
+         } else {
              throw new RuntimeException("Erro de tipo (" + d.getLine() + ", " + d.getColumn() + ") Operandos incompatíveis");
          }
 
@@ -436,7 +438,11 @@ public class TypeCheckVisitor extends LVisitor {
         }
     }
 
-    public void visit(IntLit e){   stk.push(VTyInt.newInt() ); typeNode.put(e,stk.peek());}
+    public void visit(IntLit e) {
+        stk.push(VTyInt.newInt());
+        typeNode.put(e, stk.peek());
+
+    }
     public void visit(BoolLit e){  stk.push(VTyBool.newBool() ); typeNode.put(e,stk.peek());}
     public void visit(FloatLit e){ stk.push(VTyFloat.newFloat() ); typeNode.put(e,stk.peek());}
     public void visit(CharLit e){ stk.push(VTyChar.newChar() ); typeNode.put(e,stk.peek());}
@@ -543,8 +549,10 @@ public class TypeCheckVisitor extends LVisitor {
 
     @Override
     public void visit(Block p) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visit'");
+
+        for(Cmd c : p.getCommands()){
+            c.accept(this);
+        }
     }
 
     @Override

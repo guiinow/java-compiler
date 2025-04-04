@@ -11,5 +11,6 @@ public class CLTypes {
     public static final short ERR = 6;
     public static final short DATA = 7;
     public static final short NULL = 8;
+    public static final short TUPLE = 9;
 
 }

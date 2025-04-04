@@ -62,7 +62,8 @@ public class Lang {
             } else {
                 System.out.println("ill-typed");
             }
-        }catch(Exception e){
+        } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("ill-typed");
 
         }

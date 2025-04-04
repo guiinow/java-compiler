@@ -140,8 +140,8 @@ data ::= DATA:dt TYID:ty LBRACE declList:del RBRACE {: RESULT = new Data(dtleft,
 
 func ::= ID:i LPAREN paramList:params RPAREN COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, params, tl, b); :}
        |  ID:i LPAREN paramList:params RPAREN block:b {: RESULT = new FunDef(ileft, iright, i, params, null, b); :}
-       |  ID:i LPAREN RPAREN COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, null, tl, b); :}
-       |  ID:i LPAREN RPAREN block:b {: RESULT = new FunDef(ileft, iright, i, null, null, b); :};
+       |  ID:i LPAREN RPAREN COLON typeList:tl block:b {: RESULT = new FunDef(ileft, iright, i, new ArrayList<Param> (), tl, b); :}
+       |  ID:i LPAREN RPAREN block:b {: RESULT = new FunDef(ileft, iright, i, new ArrayList<Param>(), new ArrayList<Type>(), b); :};
 
 declList ::= declList:dl decl:d {: dl.add(d); RESULT = dl; :}
        |  {: RESULT = new ArrayList<Decl>(); :};
